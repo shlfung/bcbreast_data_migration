@@ -83,7 +83,7 @@ with open('./data/ttr_nurse_log_20171023.csv', 'rU') as csvfile:
             participant_data['Middle Name'] = row['MiddleName']
             participant_data['Nick Name'] = row['NickName']
             participant_data['Last Name'] = row['LName']
-            participant_data['Donor Sequence Number'] = row['Donor Sequence Number']
+            participant_data['Donor Sequence Number'] = row['ï»¿Donor Sequence Number']
 
             participant_data['Gender'] = row['Gender']
             participant_data['DOB'] = row['DOB']
@@ -104,6 +104,9 @@ with open('./data/ttr_nurse_log_20171023.csv', 'rU') as csvfile:
             participant_data['OR Date and Time'] = row['ORDate']
             participant_data['OR Date and Time'] = row['ORTime']
 
+            participant_data['Notes'] = "Referral Datetime:" + row['Referral date/time'] + "," + row['Time of Referral'] + ", Method of Referral: " + row['Method of referral'] + ", ACAppDateTime:" + row['ACApptDate'] + "," + row['ACApptTime'] + ", TTRApptDateTime:" + row['TTRApptDate'] + "," + row['TTRApptTime'] + ", TTRApptSite:" + row['TTRApptSite']
+
+
             #participant_data[] = row['Referral date/time']
             #participant_data[] = row['Time of Referral']
             #participant_data[] = row['Method of referral']
@@ -114,17 +117,13 @@ with open('./data/ttr_nurse_log_20171023.csv', 'rU') as csvfile:
             #participant_data[] = row['TTRApptSite']
 
 
-
+            participant_data['No Surgery'] = row['NoSurgery']
 
             #participant_data[] = row['DonorClosed']
-
             #participant_data[] = row['PostOp']
-
-            #participant_data[] = row['NoSurgery']
             #participant_data[] = row['Reason questnre declined']
             #participant_data[] = row['QuestionnaireFileName']
             #participant_data[] = row['QuestionnaireFilePath']
-
             #participant_data[] = row['accessing']
             #participant_data[] = row['trans_dd']
 
@@ -156,7 +155,6 @@ with open('./data/ttr_nurse_log_20171023.csv', 'rU') as csvfile:
             consent_data['Reason Consent Declined'] = row['Reason consent declined']
             consent_data['Notes'] = row['Referral Notes']
             consent_data['Person Obtaining Consent'] = row['TTR Nurse']
-
 
             ttr_participants[row['AcquisitionID']] = participant_data
             ttr_consent[row['AcquisitionID']] = consent_data
@@ -316,7 +314,21 @@ with open('./data/source_vba.csv', 'rU') as csvfile:
         if row['Sample Name'] not in vba_inserted:
 
             aliquot_counter = 1
-            participant_insert = "INSERT INTO participants (`last_modification`, `created`, `modified`) VALUES (NOW(), NOW(), NOW());"
+            #participant_insert = "INSERT INTO participants (`last_modification`, `created`, `modified`) VALUES (NOW(), NOW(), NOW());"
+            #list_of_statements.append(participant_insert)
+
+            participant_insert = "INSERT INTO `participants` (`study_type`, `first_name`,`middle_name`,`last_name`,`bcb_nick_name`," \
+                                 "`phn`,`date_of_birth`,`date_of_birth_accuracy`,`sex`," \
+                                 "`notes`,`final_diagnosis`,`primary_diagnosis`,`primary_path_number`,`primary_hospital`,`or_hospital`," \
+                                 "`original_er`,`original_pr`,`her2_fish`, `her2_ihc`,`no_sample_reason`," \
+                                 "`or_datetime`,`participant_identifier`," \
+                                 "`last_modification`,`created`,`modified`) VALUES " + " ('TTR', '" + ttr_participants[row['Sample Name']]['First Name'] + "','" + ttr_participants[row['Sample Name']]['Middle Name'] + "','" + \
+            ttr_participants[row['Sample Name']]['Last Name'] + "','" + ttr_participants[row['Sample Name']]['Nick Name'] + "','" + ttr_participants[row['Sample Name']]['PHN'] + "','" + ttr_participants[row['Sample Name']]['DOB'] + "', 'c', '"
+            "','" + ttr_participants[row['Sample Name']]['Gender'] + "','" + ttr_participants[row['Sample Name']]['Notes'] + "','" + ttr_participants[row['Sample Name']]['Final Diagnosis'] + "','" + ttr_participants[row['Sample Name']]['Primary Diagnosis'] \
+            + "','" + ttr_participants[row['Sample Name']]['Primary Path Number'] + "','" + ttr_participants[row['Sample Name']]['Primary Hospital'] + "','" + ttr_participants[row['Sample Name']]['OR Hospital'] \
+            + "','" + ttr_participants[row['Sample Name']]['Original ER'] + "','" + ttr_participants[row['Sample Name']]['Original PR'] \
+            + "','" + ttr_participants[row['Sample Name']]['HER2 FISH'] + "','" + ttr_participants[row['Sample Name']]['HER2 IHC'] + "','" + ttr_participants[row['Sample Name']]['No Sample Reason'] \
+            + "','" + ttr_participants[row['Sample Name']]['OR Date and Time'] + "','" + ttr_participants[row['Sample Name']]['BCCA ID'] + ", NOW(), NOW(), NOW());"
             list_of_statements.append(participant_insert)
 
             vba_num = row['Sample Name'][0:3] + "000" + row['Sample Name'][3:]
