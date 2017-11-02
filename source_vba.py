@@ -62,12 +62,109 @@ with open('./data/source_vba.csv', 'rU') as csvfile:
 print('Inventory Without Patients')
 print(inventory_without_patients)
 
-input("TTR Ends Here")
+input("TTR Validation Ends Here")
+
+#Record participant data from TTR log here
+
+with open('./data/ttr_nurse_log_20171023.csv', 'rU') as csvfile:
+    csvreader = csv.DictReader(csvfile)
+
+    ttr_participants = dict()
+    ttr_consent = dict()
+
+    for row in csvreader:
+
+        if row['ConsentID'] != row['AcquisitionID']:
+            print(row)
+            participant_data = dict()
+            participant_data['BCCA ID'] = row['Agency_ID']
+            participant_data['PHN'] = row['PHN']
+            participant_data['First Name'] = row['FName']
+            participant_data['Middle Name'] = row['MiddleName']
+            participant_data['Nick Name'] = row['NickName']
+            participant_data['Last Name'] = row['LName']
+            participant_data['Donor Sequence Number'] = row['Donor Sequence Number']
+
+            participant_data['Gender'] = row['Gender']
+            participant_data['DOB'] = row['DOB']
+            participant_data['Primary Diagnosis'] = row['PrimaryDiagnosis']
+            participant_data['Primary Path Number'] = row['primaryPathNumber']
+            participant_data['Primary Hospital'] = row['PrimaryHospital']
+
+            participant_data['Study Type'] = row['Surgeon']
 
 
+            #participant_data[] = row['CurrentDiagnosis']
+
+            #participant_data[] = row['HomePhone']
+            #participant_data[] = row['WorkPhone']
+            #participant_data[] = row['CellPhone']
+
+            participant_data['OR Hospital'] = row['ORFacility']
+            participant_data['OR Date and Time'] = row['ORDate']
+            participant_data['OR Date and Time'] = row['ORTime']
+
+            #participant_data[] = row['Referral date/time']
+            #participant_data[] = row['Time of Referral']
+            #participant_data[] = row['Method of referral']
+            #participant_data[] = row['ACApptDate']
+            #participant_data[] = row['ACApptTime']
+            #participant_data[] = row['TTRApptDate']
+            #participant_data[] = row['TTRApptTime']
+            #participant_data[] = row['TTRApptSite']
+
+
+
+
+            #participant_data[] = row['DonorClosed']
+
+            #participant_data[] = row['PostOp']
+
+            #participant_data[] = row['NoSurgery']
+            #participant_data[] = row['Reason questnre declined']
+            #participant_data[] = row['QuestionnaireFileName']
+            #participant_data[] = row['QuestionnaireFilePath']
+
+            #participant_data[] = row['accessing']
+            #participant_data[] = row['trans_dd']
+
+            participant_data['Final Diagnosis'] = row['final_diagnosis']
+            participant_data['No Sample Reason'] = row['No_sample_Reason']
+            participant_data['Original ER'] = row['original_ER']
+            participant_data['Original PR'] = row['original_PR']
+            participant_data['HER2 FISH'] = row['her2_FISH']
+            participant_data['HER2 IHC'] = row['her2_IHC']
+
+
+
+
+            #Consent
+            consent_data = dict()
+            consent_data['Path SPEC'] = row['PathSPEC']
+            consent_data['Fluid Collected'] = row['FluidCollected']
+            consent_data['Fluid Type'] = row['FluidType']
+            consent_data['Cancer Type'] = row['Cancer Type']
+            consent_data['Pathologist'] = row['Pathologist']
+            consent_data['ConsentGenetic'] = row['ContactGenetic']
+            consent_data['Blood Collected'] = row['BloodCollected']
+            consent_data['Saliva Collected'] = row['SalivaCollected']
+
+            consent_data['Revoked'] = row['Revoked']
+            consent_data['Consent Denied'] = row['ConsentDenied']
+            consent_data['Date Consent Signed'] = row['Date Consent signed']
+            consent_data['Date Consent Denied'] = row['DateConsentDenied']
+            consent_data['Reason Consent Declined'] = row['Reason consent declined']
+            consent_data['Notes'] = row['Referral Notes']
+            consent_data['Person Obtaining Consent'] = row['TTR Nurse']
+
+
+            ttr_participants[row['AcquisitionID']] = participant_data
+            ttr_consent[row['AcquisitionID']] = consent_data
+
+input("TTR Participant Import Ends Here")
 
 # Record the number of Tissue for each participants
-with open('source_vba.csv', 'rU') as csvfile:
+with open('./data/source_vba.csv', 'rU') as csvfile:
     csvreader = csv.DictReader(csvfile)
 
     vba_tissue = dict()
@@ -107,10 +204,11 @@ with open('source_vba.csv', 'rU') as csvfile:
                 #print(vba_tissue[row['Sample Name']])
 
 
+
 print(vba_tissue)
 #input("Finished recording the number of tissues, continue?")
 # Record the number of Plasma
-with open('source_vba.csv', 'rU') as csvfile:
+with open('./data/source_vba.csv', 'rU') as csvfile:
     csvreader = csv.DictReader(csvfile)
 
     vba_plasma = dict()
@@ -142,7 +240,7 @@ with open('source_vba.csv', 'rU') as csvfile:
 print(vba_plasma)
 #input("Finished recording the number of plasma, continue?")
 
-with open('source_vba.csv', 'rU') as csvfile:
+with open('./data/source_vba.csv', 'rU') as csvfile:
     csvreader = csv.DictReader(csvfile)
 
     vba_buffy_coat = dict()
@@ -174,7 +272,7 @@ print(vba_buffy_coat)
 #input("Finished recording the number of plasma, continue?")
 
 
-with open('source_vba.csv', 'rU') as csvfile:
+with open('./data/source_vba.csv', 'rU') as csvfile:
     csvreader = csv.DictReader(csvfile)
 
     vba_saliva = dict()
@@ -207,7 +305,7 @@ input("Finished recording the number of saliva, continue?")
 #Store list of SQL statements
 list_of_statements = []
 
-with open('source_vba.csv', 'rU') as csvfile:
+with open('./data/source_vba.csv', 'rU') as csvfile:
     csvreader = csv.DictReader(csvfile)
 
     vba_inserted = set()
@@ -414,7 +512,7 @@ with open('source_vba.csv', 'rU') as csvfile:
             vba_inserted.add(row['Sample Name'])
 
 
-filename = 'vba_participants_for_import' + '.sql'
+filename = './export/vba_participants_for_import' + '.sql'
 print(list_of_statements)
 for row in list_of_statements:
     print(row)
