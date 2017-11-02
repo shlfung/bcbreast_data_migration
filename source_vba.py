@@ -13,6 +13,59 @@ def convert_date_format(input_datetime):
         return iso_datetime
 
 
+# This step is for finding disagreement between the Consent ID and the Acquisition ID in the records
+with open('./data/ttr_nurse_log_20171023.csv') as csvfile:
+    csvreader = csv.DictReader(csvfile)
+
+    for row in csvreader:
+        #print(row)
+
+
+        if row['ConsentID'] != row['AcquisitionID']:
+
+            if 'TTRBR' in row['ConsentID'] and 'VBA' in row['AcquisitionID']:
+
+                consent_id_num = row['ConsentID'].replace('TTRBR', '')
+                acq_id_num = row['AcquisitionID'].replace('VBA', '')
+                #print(int(consent_id_num))
+                #print(int(acq_id_num))
+                if int(consent_id_num) != int(acq_id_num):
+                    print(row['ConsentID'], row['AcquisitionID'])
+
+            else:
+                print(row['ConsentID'], row['AcquisitionID'])
+
+# This is to check if every VBA record in the inventory has a patient record
+with open('./data/ttr_nurse_log_20171023.csv') as csvfile:
+    csvreader = csv.DictReader(csvfile)
+
+    patient_ids = dict()
+
+    for row in csvreader:
+        #print(row)
+
+        patient_ids[row['AcquisitionID']] = row['PHN']
+
+
+with open('./data/source_vba.csv', 'rU') as csvfile:
+    csvreader = csv.DictReader(csvfile)
+
+    inventory_without_patients = []
+
+    for row in csvreader:
+        if row['Sample Name'] in patient_ids.keys():
+            pass
+        else:
+            inventory_without_patients.append(row['Sample Name'])
+
+
+print('Inventory Without Patients')
+print(inventory_without_patients)
+
+input("TTR Ends Here")
+
+
+
 # Record the number of Tissue for each participants
 with open('source_vba.csv', 'rU') as csvfile:
     csvreader = csv.DictReader(csvfile)
