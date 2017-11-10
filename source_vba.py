@@ -1,20 +1,50 @@
 import csv
 import datetime
 
-def convert_date_format(input_datetime):
+def convert_date_format(input_datetime, dob=False):
 
     if input_datetime == '':
         return input_datetime
     else:
         #print(input_datetime)
-        try:
-            iso_datetime = datetime.datetime.strptime(input_datetime, '%m/%d/%Y').date().isoformat()
-            #print(iso_datetime)
-            return iso_datetime
-        except ValueError:
-            iso_datetime = datetime.datetime.strptime(input_datetime, '%d-%b-%y').date().isoformat()
-            #print(iso_datetime)
-            return iso_datetime
+
+        if dob is True:
+            try:
+                iso_datetime = datetime.datetime.strptime(input_datetime, '%m/%d/%Y').date().isoformat()
+                #iso_datetime_dob = datetime.timedelta()
+                #print('Converting Datetime')
+                iso_datetime_dob = '19' + iso_datetime[2:]
+                #print(iso_datetime_dob)
+                #input("Check DOB")
+                return iso_datetime_dob
+            except ValueError:
+                iso_datetime = datetime.datetime.strptime(input_datetime, '%d-%b-%y').date().isoformat()
+                #print('Converting Datetime')
+                iso_datetime_dob = '19' + iso_datetime[2:]
+                #print(iso_datetime_dob)
+                #input("Check DOB")
+                return iso_datetime_dob
+        else:
+            try:
+                iso_datetime = datetime.datetime.strptime(input_datetime, '%m/%d/%Y').date().isoformat()
+                #print(iso_datetime)
+                return iso_datetime
+            except ValueError:
+                iso_datetime = datetime.datetime.strptime(input_datetime, '%d-%b-%y').date().isoformat()
+                #print(iso_datetime)
+                return iso_datetime
+
+def convert_or_datetime(or_date, or_time):
+
+    if or_date == '':
+        iso_datetime = ''
+    elif or_time == '':
+        iso_datetime = datetime.datetime.strptime(or_date, '%d-%b-%y').date().isoformat() + ' 00:00:00'
+    else:
+        or_datetime = or_date + ' ' + or_time
+        iso_datetime = datetime.datetime.strptime(or_date, '%d-%b-%y').date().isoformat() + ' ' + or_time + ':00'
+
+    return iso_datetime
 
 # Store the records that have issues in this set:
 ttr_records_w_errors = set()
@@ -94,8 +124,15 @@ with open('./data/ttr_nurse_log_20171023.csv', 'rU') as csvfile:
             participant_data['Last Name'] = row['LName']
             participant_data['Donor Sequence Number'] = row['ï»¿Donor Sequence Number']
 
-            participant_data['Gender'] = row['Gender']
-            participant_data['DOB'] = row['DOB']
+            if row['Gender'] == 'Female':
+                participant_data['Gender'] = 'f'
+            elif row['Gender'] == 'Male':
+                participant_data['Gender'] = 'm'
+            else:
+                participant_data['Gender'] = ''
+
+            participant_data['DOB'] = convert_date_format(row['DOB'], True)
+
             participant_data['Primary Diagnosis'] = row['PrimaryDiagnosis']
             participant_data['Primary Path Number'] = row['primaryPathNumber']
             participant_data['Primary Hospital'] = row['PrimaryHospital']
@@ -110,8 +147,13 @@ with open('./data/ttr_nurse_log_20171023.csv', 'rU') as csvfile:
             #participant_data[] = row['CellPhone']
 
             participant_data['OR Hospital'] = row['ORFacility']
-            participant_data['OR Date and Time'] = row['ORDate']
-            participant_data['OR Date and Time'] = row['ORTime']
+            #participant_data['OR Date and Time'] = row['ORDate']
+            #participant_data['OR Date and Time'] = row['ORTime']
+            #or_datetime = row['ORDate'] + ' ' + row['ORTime']
+            #print('OR DateTime')
+            #print(convert_or_datetime(row['ORDate'], row['ORTime']))
+            participant_data['OR Date and Time'] = convert_or_datetime(row['ORDate'], row['ORTime'])
+
 
             participant_data['Notes'] = "Referral Datetime:" + row['Referral date/time'] + "," + row['Time of Referral'] + ", Method of Referral: " + row['Method of referral'] + ", ACAppDateTime:" + row['ACApptDate'] + "," + row['ACApptTime'] + ", TTRApptDateTime:" + row['TTRApptDate'] + "," + row['TTRApptTime'] + ", TTRApptSite:" + row['TTRApptSite']
 
