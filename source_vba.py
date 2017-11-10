@@ -6,12 +6,18 @@ def convert_date_format(input_datetime):
     if input_datetime == '':
         return input_datetime
     else:
-        print(input_datetime)
-        iso_datetime = datetime.datetime.strptime(input_datetime, '%m/%d/%Y').date().isoformat()
-        print(iso_datetime)
+        #print(input_datetime)
+        try:
+            iso_datetime = datetime.datetime.strptime(input_datetime, '%m/%d/%Y').date().isoformat()
+            #print(iso_datetime)
+            return iso_datetime
+        except ValueError:
+            iso_datetime = datetime.datetime.strptime(input_datetime, '%d-%b-%y').date().isoformat()
+            #print(iso_datetime)
+            return iso_datetime
 
-        return iso_datetime
-
+# Store the records that have issues in this set:
+ttr_records_w_errors = set()
 
 # This step is for finding disagreement between the Consent ID and the Acquisition ID in the records
 with open('./data/ttr_nurse_log_20171023.csv') as csvfile:
@@ -31,9 +37,11 @@ with open('./data/ttr_nurse_log_20171023.csv') as csvfile:
                 #print(int(acq_id_num))
                 if int(consent_id_num) != int(acq_id_num):
                     print(row['ConsentID'], row['AcquisitionID'])
+                    ttr_records_w_errors.add(row['AcquisitionID'])
 
             else:
                 print(row['ConsentID'], row['AcquisitionID'])
+                ttr_records_w_errors.add(row['AcquisitionID'])
 
 # This is to check if every VBA record in the inventory has a patient record
 with open('./data/ttr_nurse_log_20171023.csv') as csvfile:
@@ -57,6 +65,7 @@ with open('./data/source_vba.csv', 'rU') as csvfile:
             pass
         else:
             inventory_without_patients.append(row['Sample Name'])
+            ttr_records_w_errors.add(row['Sample Name'])
 
 
 print('Inventory Without Patients')
@@ -74,8 +83,8 @@ with open('./data/ttr_nurse_log_20171023.csv', 'rU') as csvfile:
 
     for row in csvreader:
 
-        if row['ConsentID'] != row['AcquisitionID']:
-            print(row)
+        if row['AcquisitionID'] not in ttr_records_w_errors:
+            #print(row)
             participant_data = dict()
             participant_data['BCCA ID'] = row['Agency_ID']
             participant_data['PHN'] = row['PHN']
@@ -139,22 +148,44 @@ with open('./data/ttr_nurse_log_20171023.csv', 'rU') as csvfile:
 
             #Consent
             consent_data = dict()
+
+            if row['ConsentDenied'] == 'TRUE':
+                consent_data['Consent Status'] = 'denied'
+            elif row['Revoked'] == 'TRUE':
+                consent_data['Consent Status'] = 'withdrawn'
+            else:
+                consent_data['Consent Status'] = 'obtained'
+
+            if row['FluidCollected'] == 'TRUE':
+                consent_data['Fluid Collected'] = 'y'
+            else:
+                consent_data['Fluid Collected'] = 'n'
+
+            if row['BloodCollected'] == 'TRUE':
+                consent_data['Blood Collected'] = 'y'
+            else:
+                consent_data['Blood Collected'] = 'n'
+
+            if row['SalivaCollected'] == 'TRUE':
+                consent_data['Saliva Collected'] = 'y'
+            else:
+                consent_data['Saliva Collected'] = 'n'
+
+            if row['ContactGenetic'] == 'TRUE':
+                consent_data['Genetic Research Status'] = 'y'
+            else:
+                consent_data['Genetic Research Status'] = 'n'
+
             consent_data['Path SPEC'] = row['PathSPEC']
-            consent_data['Fluid Collected'] = row['FluidCollected']
             consent_data['Fluid Type'] = row['FluidType']
             consent_data['Cancer Type'] = row['Cancer Type']
-            consent_data['Pathologist'] = row['Pathologist']
-            consent_data['ConsentGenetic'] = row['ContactGenetic']
-            consent_data['Blood Collected'] = row['BloodCollected']
-            consent_data['Saliva Collected'] = row['SalivaCollected']
-
-            consent_data['Revoked'] = row['Revoked']
-            consent_data['Consent Denied'] = row['ConsentDenied']
-            consent_data['Date Consent Signed'] = row['Date Consent signed']
-            consent_data['Date Consent Denied'] = row['DateConsentDenied']
+            consent_data['Date Consent Signed or Declined'] = convert_date_format(row['Date Consent signed'])
             consent_data['Reason Consent Declined'] = row['Reason consent declined']
             consent_data['Notes'] = row['Referral Notes']
+            consent_data['Pathologist'] = row['Pathologist']
             consent_data['Person Obtaining Consent'] = row['TTR Nurse']
+
+            #consent_data['Date Consent Denied'] = row['DateConsentDenied']
 
             ttr_participants[row['AcquisitionID']] = participant_data
             ttr_consent[row['AcquisitionID']] = consent_data
@@ -171,7 +202,7 @@ with open('./data/source_vba.csv', 'rU') as csvfile:
 
         if row['Primary Sample Type'] == 'Tissue':
 
-            print(row)
+            #print(row)
 
             if row['Sample Name'] in vba_tissue:
 
@@ -215,7 +246,7 @@ with open('./data/source_vba.csv', 'rU') as csvfile:
 
         if row['Primary Sample Type'] == 'Plasma':
 
-            print(row)
+            #print(row)
 
             if row['Sample Name'] in vba_plasma:
 
@@ -247,7 +278,7 @@ with open('./data/source_vba.csv', 'rU') as csvfile:
 
         if row['Primary Sample Type'] == 'Buffy Coat':
 
-            print(row)
+            #print(row)
 
             if row['Sample Name'] in vba_buffy_coat:
 
@@ -279,7 +310,7 @@ with open('./data/source_vba.csv', 'rU') as csvfile:
 
         if row['Primary Sample Type'] == 'Saliva':
 
-            print(row)
+            #print(row)
 
             if row['Sample Name'] in vba_saliva:
 
@@ -311,24 +342,22 @@ with open('./data/source_vba.csv', 'rU') as csvfile:
     for row in csvreader:
         #print(row)
 
-        if row['Sample Name'] not in vba_inserted:
+        if row['Sample Name'] not in vba_inserted and row['Sample Name'] not in {'VBA0862', 'VBA0896', 'VBA0909', 'VBA0927'}:
 
             aliquot_counter = 1
             #participant_insert = "INSERT INTO participants (`last_modification`, `created`, `modified`) VALUES (NOW(), NOW(), NOW());"
             #list_of_statements.append(participant_insert)
 
-            participant_insert = "INSERT INTO `participants` (`study_type`, `first_name`,`middle_name`,`last_name`,`bcb_nick_name`," \
+            participant_insert = "INSERT INTO participants (`study_type`, `first_name`,`middle_name`,`last_name`,`bcb_nick_name`," \
                                  "`phn`,`date_of_birth`,`date_of_birth_accuracy`,`sex`," \
                                  "`notes`,`final_diagnosis`,`primary_diagnosis`,`primary_path_number`,`primary_hospital`,`or_hospital`," \
                                  "`original_er`,`original_pr`,`her2_fish`, `her2_ihc`,`no_sample_reason`," \
                                  "`or_datetime`,`participant_identifier`," \
-                                 "`last_modification`,`created`,`modified`) VALUES " + " ('TTR', '" + ttr_participants[row['Sample Name']]['First Name'] + "','" + ttr_participants[row['Sample Name']]['Middle Name'] + "','" + \
-            ttr_participants[row['Sample Name']]['Last Name'] + "','" + ttr_participants[row['Sample Name']]['Nick Name'] + "','" + ttr_participants[row['Sample Name']]['PHN'] + "','" + ttr_participants[row['Sample Name']]['DOB'] + "', 'c', '"
-            "','" + ttr_participants[row['Sample Name']]['Gender'] + "','" + ttr_participants[row['Sample Name']]['Notes'] + "','" + ttr_participants[row['Sample Name']]['Final Diagnosis'] + "','" + ttr_participants[row['Sample Name']]['Primary Diagnosis'] \
+                                 "`last_modification`,`created`,`modified`) VALUES " + " ('TTR', '" + ttr_participants[row['Sample Name']]['First Name'] + "','" + ttr_participants[row['Sample Name']]['Middle Name'] + "','" + ttr_participants[row['Sample Name']]['Last Name'] + "','" + ttr_participants[row['Sample Name']]['Nick Name'] + "','" + ttr_participants[row['Sample Name']]['PHN'] + "','" + ttr_participants[row['Sample Name']]['DOB'] + "', 'c','" + ttr_participants[row['Sample Name']]['Gender'] + "','" + ttr_participants[row['Sample Name']]['Notes'] + "','" + ttr_participants[row['Sample Name']]['Final Diagnosis'] + "','" + ttr_participants[row['Sample Name']]['Primary Diagnosis'] \
             + "','" + ttr_participants[row['Sample Name']]['Primary Path Number'] + "','" + ttr_participants[row['Sample Name']]['Primary Hospital'] + "','" + ttr_participants[row['Sample Name']]['OR Hospital'] \
             + "','" + ttr_participants[row['Sample Name']]['Original ER'] + "','" + ttr_participants[row['Sample Name']]['Original PR'] \
             + "','" + ttr_participants[row['Sample Name']]['HER2 FISH'] + "','" + ttr_participants[row['Sample Name']]['HER2 IHC'] + "','" + ttr_participants[row['Sample Name']]['No Sample Reason'] \
-            + "','" + ttr_participants[row['Sample Name']]['OR Date and Time'] + "','" + ttr_participants[row['Sample Name']]['BCCA ID'] + ", NOW(), NOW(), NOW());"
+            + "','" + ttr_participants[row['Sample Name']]['OR Date and Time'] + "','" + ttr_participants[row['Sample Name']]['BCCA ID'] + "', NOW(), NOW(), NOW());"
             list_of_statements.append(participant_insert)
 
             vba_num = row['Sample Name'][0:3] + "000" + row['Sample Name'][3:]
@@ -338,10 +367,20 @@ with open('./data/source_vba.csv', 'rU') as csvfile:
             misc_identifier_insert = "INSERT INTO misc_identifiers (`identifier_value`, `misc_identifier_control_id`, `participant_id`, `flag_unique`) VALUES ('" + vba_num + "', 1, (SELECT `id` FROM participants ORDER BY `id` DESC LIMIT 1), 1);"
             list_of_statements.append(misc_identifier_insert)
 
-            consent_masters_insert = "INSERT INTO consent_masters (`consent_status`, `participant_id`, `consent_control_id`) VALUES ('obtained', (SELECT `id` FROM participants ORDER BY `id` DESC LIMIT 1), 2);"
+            #consent_masters_insert = "INSERT INTO consent_masters (`consent_status`, `participant_id`, `consent_control_id`) VALUES ('obtained', (SELECT `id` FROM participants ORDER BY `id` DESC LIMIT 1), 2);"
+
+            consent_masters_insert = "INSERT INTO consent_masters (`consent_status`, `consent_signed_date`, `reason_denied`, `notes`, `participant_id`, `consent_control_id`) VALUES ('" + consent_data['Consent Status'] + "','" + consent_data['Date Consent Signed or Declined'] + "','" + consent_data['Reason Consent Declined'] + "','" + consent_data['Notes'] + "',(SELECT `id` FROM participants ORDER BY `id` DESC LIMIT 1), 2);"
+
             list_of_statements.append(consent_masters_insert)
 
-            cd_bcca_breast_insert = "INSERT INTO cd_bcca_breast (`consent_id`, `bcb_study_type`, `consent_master_id`, `dt_created`) VALUES ('" + consent_id + "', 'ttr', (SELECT `id` FROM consent_masters ORDER BY `id` DESC LIMIT 1), '2010-01-01 00:00:00');"
+            #cd_bcca_breast_insert = "INSERT INTO cd_bcca_breast (`consent_id`, `bcb_study_type`, `consent_master_id`, `dt_created`) VALUES ('" + consent_id + "', 'ttr', (SELECT `id` FROM consent_masters ORDER BY `id` DESC LIMIT 1), '2010-01-01 00:00:00');"
+
+            cd_bcca_breast_insert = "INSERT INTO cd_bcca_breast (`consent_id`, `bcb_study_type`," \
+                                    "`bcb_path_spec`, `bcb_pathologist`, `bcb_cancer_type`, `bcb_consenting_person`, `genetic_research_status`, `blood_status`, `saliva_status`, `fluid_status`, `fluid_type`, " \
+                                    "`consent_master_id`, `dt_created`) VALUES ('" + consent_id + "', 'ttr', '" + \
+                                    consent_data['Path SPEC'] + "','" + consent_data['Pathologist'] + "','" + consent_data['Cancer Type'] + "','" + consent_data['Person Obtaining Consent'] + "','" + consent_data['Genetic Research Status'] + "','" + consent_data['Blood Collected'] + "','" + consent_data['Saliva Collected'] + "','" + consent_data['Fluid Collected'] + "','" + consent_data['Fluid Type'] + "', (SELECT `id` FROM consent_masters ORDER BY `id` DESC LIMIT 1), '2010-01-01 00:00:00');"
+
+
             list_of_statements.append(cd_bcca_breast_insert)
 
             collections_insert = "INSERT INTO collections (`acquisition_label`, `bank_id`, `collection_property`, `collection_notes`, `participant_id`, `consent_master_id`) VALUES ('" + acquisition_label + "', 1, 'participant collection', '', (SELECT `id` FROM participants ORDER BY `id` DESC LIMIT 1), (SELECT `id` FROM consent_masters ORDER BY `id` DESC LIMIT 1));"
@@ -373,7 +412,7 @@ with open('./data/source_vba.csv', 'rU') as csvfile:
 
 
                 for record in vba_saliva[row['Sample Name']]:
-                    print(record['Preparation Date'])
+                    #print(record['Preparation Date'])
                     # input("Stop")
                     aliquot_barcode = acquisition_label + 'SL' + '000' + str(aliquot_counter)
                     aliquot_masters_insert = "INSERT INTO aliquot_masters (`barcode`, `filemaker_barcode`, `aliquot_control_id`, `collection_id`, `sample_master_id`, `in_stock`, `storage_datetime`, `storage_datetime_accuracy`) VALUES ('" + aliquot_barcode + "', '" + \
@@ -446,7 +485,7 @@ with open('./data/source_vba.csv', 'rU') as csvfile:
 
 
                     for record in vba_plasma[row['Sample Name']]:
-                        print(record['Preparation Date'])
+                        #print(record['Preparation Date'])
                         #input("Stop")
                         aliquot_barcode = acquisition_label + 'PL' + '000' + str(aliquot_counter)
                         aliquot_masters_insert = "INSERT INTO aliquot_masters (`barcode`, `filemaker_barcode`, `aliquot_control_id`, `collection_id`, `sample_master_id`, `in_stock`, `storage_datetime`, `storage_datetime_accuracy`) VALUES ('" + aliquot_barcode + "', '" + \
@@ -481,7 +520,7 @@ with open('./data/source_vba.csv', 'rU') as csvfile:
                     list_of_statements.append(sd_der_buffy_coats_insert)
 
                     for record in vba_buffy_coat[row['Sample Name']]:
-                        print(record['Preparation Date'])
+                        #print(record['Preparation Date'])
                         # input("Stop")
                         aliquot_barcode = acquisition_label + 'BC' + '000' + str(aliquot_counter)
                         aliquot_masters_insert = "INSERT INTO aliquot_masters (`barcode`, `filemaker_barcode`, `aliquot_control_id`, `collection_id`, `sample_master_id`, `in_stock`, `storage_datetime`, `storage_datetime_accuracy`) VALUES ('" + aliquot_barcode + "', '" + \
@@ -525,7 +564,7 @@ with open('./data/source_vba.csv', 'rU') as csvfile:
 
 
 filename = './export/vba_participants_for_import' + '.sql'
-print(list_of_statements)
+#print(list_of_statements)
 for row in list_of_statements:
     print(row)
 with open(filename, 'w', newline='') as file_handler:
