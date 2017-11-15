@@ -46,6 +46,22 @@ def convert_or_datetime(or_date, or_time):
 
     return iso_datetime
 
+def convert_her2(her2_status):
+    # Options are Equivocal, Low, Negative, Positive
+
+    if her2_status in ('equiv', 'equiv.', 'Equivocal'):
+        return 'Equivocal'
+    elif her2_status in ('low'):
+        return 'Low'
+    elif her2_status in ('-', 'neg'):
+        return 'Negative'
+    elif her2_status in ('2+', '+', 'pos', 'med', 'high', 'pos.'):
+        return 'Positive'
+    else:
+        return ''
+
+
+
 # Store the records that have issues in this set:
 ttr_records_w_errors = set()
 
@@ -104,6 +120,9 @@ print(inventory_without_patients)
 input("TTR Validation Ends Here")
 
 #Record participant data from TTR log here
+
+print(ttr_records_w_errors)
+input('Above is the TTR Nurse Records with errors')
 
 with open('./data/ttr_nurse_log_20171023.csv', 'rU') as csvfile:
     csvreader = csv.DictReader(csvfile)
@@ -180,10 +199,12 @@ with open('./data/ttr_nurse_log_20171023.csv', 'rU') as csvfile:
 
             participant_data['Final Diagnosis'] = row['final_diagnosis']
             participant_data['No Sample Reason'] = row['No_sample_Reason']
-            participant_data['Original ER'] = row['original_ER']
-            participant_data['Original PR'] = row['original_PR']
-            participant_data['HER2 FISH'] = row['her2_FISH']
-            participant_data['HER2 IHC'] = row['her2_IHC']
+
+            # Options are Equivocal, Low, Negative, Positive
+            participant_data['Original ER'] = convert_her2(row['original_ER'])
+            participant_data['Original PR'] = convert_her2(row['original_PR'])
+            participant_data['HER2 FISH'] = convert_her2(row['her2_FISH'])
+            participant_data['HER2 IHC'] = convert_her2(row['her2_IHC'])
 
 
 
@@ -218,14 +239,22 @@ with open('./data/ttr_nurse_log_20171023.csv', 'rU') as csvfile:
             else:
                 consent_data['Genetic Research Status'] = 'n'
 
-            consent_data['Path SPEC'] = row['PathSPEC']
+            if row['PathSPEC'] == '':
+                print("it is empty!")
+                consent_data['Path SPEC'] = row['PathSPEC']
+            else:
+                print("Not Empty")
+                consent_data['Path SPEC'] = row['PathSPEC']
+                print(consent_data['Path SPEC'])
+
             consent_data['Fluid Type'] = row['FluidType']
             consent_data['Cancer Type'] = row['Cancer Type']
             consent_data['Date Consent Signed or Declined'] = convert_date_format(row['Date Consent signed'])
             consent_data['Reason Consent Declined'] = row['Reason consent declined']
             consent_data['Notes'] = row['Referral Notes']
             consent_data['Pathologist'] = row['Pathologist']
-            consent_data['Person Obtaining Consent'] = row['TTR Nurse']
+            #consent_data['Person Obtaining Consent'] = row['TTR Nurse']
+            consent_data['Person Obtaining Consent'] = 'clinical nurse'
 
             #consent_data['Date Consent Denied'] = row['DateConsentDenied']
 
@@ -411,7 +440,7 @@ with open('./data/source_vba.csv', 'rU') as csvfile:
 
             #consent_masters_insert = "INSERT INTO consent_masters (`consent_status`, `participant_id`, `consent_control_id`) VALUES ('obtained', (SELECT `id` FROM participants ORDER BY `id` DESC LIMIT 1), 2);"
 
-            consent_masters_insert = "INSERT INTO consent_masters (`consent_status`, `consent_signed_date`, `reason_denied`, `notes`, `participant_id`, `consent_control_id`) VALUES ('" + consent_data['Consent Status'] + "','" + consent_data['Date Consent Signed or Declined'] + "','" + consent_data['Reason Consent Declined'] + "','" + consent_data['Notes'] + "',(SELECT `id` FROM participants ORDER BY `id` DESC LIMIT 1), 2);"
+            consent_masters_insert = "INSERT INTO consent_masters (`consent_status`, `consent_signed_date`, `reason_denied`, `notes`, `participant_id`, `consent_control_id`) VALUES ('" + ttr_consent[row['Sample Name']]['Consent Status'] + "','" + ttr_consent[row['Sample Name']]['Date Consent Signed or Declined'] + "','" + ttr_consent[row['Sample Name']]['Reason Consent Declined'] + "','" + ttr_consent[row['Sample Name']]['Notes'] + "',(SELECT `id` FROM participants ORDER BY `id` DESC LIMIT 1), 2);"
 
             list_of_statements.append(consent_masters_insert)
 
@@ -420,7 +449,7 @@ with open('./data/source_vba.csv', 'rU') as csvfile:
             cd_bcca_breast_insert = "INSERT INTO cd_bcca_breast (`consent_id`, `bcb_study_type`," \
                                     "`bcb_path_spec`, `bcb_pathologist`, `bcb_cancer_type`, `bcb_consenting_person`, `genetic_research_status`, `blood_status`, `saliva_status`, `fluid_status`, `fluid_type`, " \
                                     "`consent_master_id`, `dt_created`) VALUES ('" + consent_id + "', 'ttr', '" + \
-                                    consent_data['Path SPEC'] + "','" + consent_data['Pathologist'] + "','" + consent_data['Cancer Type'] + "','" + consent_data['Person Obtaining Consent'] + "','" + consent_data['Genetic Research Status'] + "','" + consent_data['Blood Collected'] + "','" + consent_data['Saliva Collected'] + "','" + consent_data['Fluid Collected'] + "','" + consent_data['Fluid Type'] + "', (SELECT `id` FROM consent_masters ORDER BY `id` DESC LIMIT 1), '2010-01-01 00:00:00');"
+                                    ttr_consent[row['Sample Name']]['Path SPEC'] + "','" + ttr_consent[row['Sample Name']]['Pathologist'] + "','" + ttr_consent[row['Sample Name']]['Cancer Type'] + "','" + ttr_consent[row['Sample Name']]['Person Obtaining Consent'] + "','" + ttr_consent[row['Sample Name']]['Genetic Research Status'] + "','" + ttr_consent[row['Sample Name']]['Blood Collected'] + "','" + ttr_consent[row['Sample Name']]['Saliva Collected'] + "','" + ttr_consent[row['Sample Name']]['Fluid Collected'] + "','" + ttr_consent[row['Sample Name']]['Fluid Type'] + "', (SELECT `id` FROM consent_masters ORDER BY `id` DESC LIMIT 1), '2010-01-01 00:00:00');"
 
 
             list_of_statements.append(cd_bcca_breast_insert)
@@ -612,3 +641,30 @@ for row in list_of_statements:
 with open(filename, 'w', newline='') as file_handler:
     for item in list_of_statements:
         file_handler.write("{}\n".format(item))
+
+
+
+#Begin work on participants without inventory
+
+with open('./data/source_vba.csv', 'rU') as csvfile:
+    csvreader = csv.DictReader(csvfile)
+
+    sample_names = set()
+
+    for row in csvreader:
+        sample_names.add(row['Sample Name'])
+
+print('All the sample names')
+print(sample_names)
+
+with open('./data/ttr_nurse_log_20171023.csv', 'rU') as csvfile:
+    csvreader = csv.DictReader(csvfile)
+
+    temp = set()
+
+    for row in csvreader:
+        if row['AcquisitionID'] not in sample_names:
+            temp.add(row['AcquisitionID'])
+
+print('These participants have no inventory')
+print(sorted(temp))
