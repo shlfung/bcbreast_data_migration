@@ -668,3 +668,102 @@ with open('./data/ttr_nurse_log_20171023.csv', 'rU') as csvfile:
 
 print('These participants have no inventory')
 print(sorted(temp))
+
+temp_check = []
+for row in temp:
+    if 'VBA' in row:
+        #print(row)
+        temp_check.append(row)
+print(len(temp_check))
+
+# Create SQL statement for inserting VBA Participants that declined consent
+list_of_statements_for_participants_no_samples = []
+for row in temp:
+
+    #VBA 863 has duplicates
+    if 'VBA' in row and row not in {'VBA863'}:
+
+
+        if len(row) < 7:
+            print(row[-3:])
+            print('VBA0' + row[-3:])
+            vba_num = 'VBA0' + row[-3:]
+            print(ttr_participants[row]['First Name'])
+
+        else:
+            vba_num = row
+
+        participant_insert = "INSERT INTO participants (`study_type`, `first_name`,`middle_name`,`last_name`,`bcb_nick_name`," \
+                             "`phn`,`date_of_birth`,`date_of_birth_accuracy`,`sex`," \
+                             "`notes`,`final_diagnosis`,`primary_diagnosis`,`primary_path_number`,`primary_hospital`,`or_hospital`," \
+                             "`original_er`,`original_pr`,`her2_fish`, `her2_ihc`,`no_sample_reason`," \
+                             "`or_datetime`,`participant_identifier`," \
+                             "`last_modification`,`created`,`modified`) VALUES " + " ('TTR', '" + \
+                             ttr_participants[vba_num]['First Name'] + "','" + \
+                             ttr_participants[vba_num]['Middle Name'] + "','" + \
+                             ttr_participants[vba_num]['Last Name'] + "','" + \
+                             ttr_participants[vba_num]['Nick Name'] + "','" + \
+                             ttr_participants[vba_num]['PHN'] + "','" + ttr_participants[vba_num][
+                                 'DOB'] + "', 'c','" + ttr_participants[vba_num]['Gender'] + "','" + \
+                             ttr_participants[vba_num]['Notes'] + "','" + \
+                             ttr_participants[vba_num]['Final Diagnosis'] + "','" + \
+                             ttr_participants[vba_num]['Primary Diagnosis'] \
+                             + "','" + ttr_participants[vba_num]['Primary Path Number'] + "','" + \
+                             ttr_participants[vba_num]['Primary Hospital'] + "','" + \
+                             ttr_participants[vba_num]['OR Hospital'] \
+                             + "','" + ttr_participants[vba_num]['Original ER'] + "','" + \
+                             ttr_participants[vba_num]['Original PR'] \
+                             + "','" + ttr_participants[vba_num]['HER2 FISH'] + "','" + \
+                             ttr_participants[vba_num]['HER2 IHC'] + "','" + \
+                             ttr_participants[vba_num]['No Sample Reason'] \
+                             + "','" + ttr_participants[vba_num]['OR Date and Time'] + "','" + \
+                             ttr_participants[vba_num]['BCCA ID'] + "', NOW(), NOW(), NOW());"
+        list_of_statements_for_participants_no_samples.append(participant_insert)
+
+        vba_num_for_misc_identifier = vba_num[0:3] + "000" + vba_num[3:]
+        consent_id = "PBC000" + vba_num[3:]
+        acquisition_label = "000" + vba_num[3:]
+        # print(vba_num)
+        misc_identifier_insert = "INSERT INTO misc_identifiers (`identifier_value`, `misc_identifier_control_id`, `participant_id`, `flag_unique`) VALUES ('" + vba_num_for_misc_identifier + "', 1, (SELECT `id` FROM participants ORDER BY `id` DESC LIMIT 1), 1);"
+        list_of_statements_for_participants_no_samples.append(misc_identifier_insert)
+
+        # consent_masters_insert = "INSERT INTO consent_masters (`consent_status`, `participant_id`, `consent_control_id`) VALUES ('obtained', (SELECT `id` FROM participants ORDER BY `id` DESC LIMIT 1), 2);"
+
+        consent_masters_insert = "INSERT INTO consent_masters (`consent_status`, `consent_signed_date`, `reason_denied`, `notes`, `participant_id`, `consent_control_id`) VALUES ('" + \
+                                 ttr_consent[vba_num]['Consent Status'] + "','" + \
+                                 ttr_consent[vba_num]['Date Consent Signed or Declined'] + "','" + \
+                                 ttr_consent[vba_num]['Reason Consent Declined'] + "','" + \
+                                 ttr_consent[vba_num][
+                                     'Notes'] + "',(SELECT `id` FROM participants ORDER BY `id` DESC LIMIT 1), 2);"
+
+        list_of_statements_for_participants_no_samples.append(consent_masters_insert)
+
+        # cd_bcca_breast_insert = "INSERT INTO cd_bcca_breast (`consent_id`, `bcb_study_type`, `consent_master_id`, `dt_created`) VALUES ('" + consent_id + "', 'ttr', (SELECT `id` FROM consent_masters ORDER BY `id` DESC LIMIT 1), '2010-01-01 00:00:00');"
+
+        cd_bcca_breast_insert = "INSERT INTO cd_bcca_breast (`consent_id`, `bcb_study_type`," \
+                                "`bcb_path_spec`, `bcb_pathologist`, `bcb_cancer_type`, `bcb_consenting_person`, `genetic_research_status`, `blood_status`, `saliva_status`, `fluid_status`, `fluid_type`, " \
+                                "`consent_master_id`, `dt_created`) VALUES ('" + consent_id + "', 'ttr', '" + \
+                                ttr_consent[vba_num]['Path SPEC'] + "','" + ttr_consent[vba_num][
+                                    'Pathologist'] + "','" + ttr_consent[vba_num]['Cancer Type'] + "','" + \
+                                ttr_consent[vba_num]['Person Obtaining Consent'] + "','" + \
+                                ttr_consent[vba_num]['Genetic Research Status'] + "','" + \
+                                ttr_consent[vba_num]['Blood Collected'] + "','" + \
+                                ttr_consent[vba_num]['Saliva Collected'] + "','" + \
+                                ttr_consent[vba_num]['Fluid Collected'] + "','" + \
+                                ttr_consent[vba_num][
+                                    'Fluid Type'] + "', (SELECT `id` FROM consent_masters ORDER BY `id` DESC LIMIT 1), '2010-01-01 00:00:00');"
+
+        list_of_statements_for_participants_no_samples.append(cd_bcca_breast_insert)
+
+
+filename = './export/vba_participants_no_samples_for_import' + '.sql'
+#print(list_of_statements)
+for row in list_of_statements_for_participants_no_samples:
+    print(row)
+with open(filename, 'w', newline='') as file_handler:
+    for item in list_of_statements_for_participants_no_samples:
+        file_handler.write("{}\n".format(item))
+
+
+
+
