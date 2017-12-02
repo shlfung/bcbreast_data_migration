@@ -474,8 +474,8 @@ with open('./data/source_vba.csv', 'rU') as csvfile:
                 specimen_details_insert = "INSERT INTO specimen_details (`sample_master_id`) VALUES ((SELECT `id` FROM sample_masters ORDER BY id DESC LIMIT 1));"
                 list_of_statements.append(specimen_details_insert)
 
-                view_samples_insert = "INSERT INTO view_samples (`sample_master_id`, `initial_specimen_sample_id`, `collection_id`, `bank_id`, `participant_id`, `acquisition_label`, `initial_specimen_sample_type`, `initial_specimen_sample_control_id`, `parent_sample_type`, `parent_sample_control_id`, `sample_type`, `sample_control_id`, `sample_code`, `sample_category`)" \
-                                      " SELECT `id`, `initial_specimen_sample_id`, `collection_id`, 1, (SELECT `id` FROM participants ORDER BY `id` DESC LIMIT 1), (SELECT `acquisition_label` FROM collections ORDER BY `id` DESC LIMIT 1), `initial_specimen_sample_type`, `sample_control_id`, NULL, NULL, 'saliva', 126, `id`, 'specimen' FROM sample_masters ORDER BY `id` DESC LIMIT 1;"
+                view_samples_insert = "INSERT INTO view_samples (`sample_master_id`, `initial_specimen_sample_id`, `collection_id`, `bank_id`, `participant_id`, `acquisition_label`, `initial_specimen_sample_type`, `initial_specimen_sample_control_id`, `parent_sample_type`, `parent_sample_control_id`, `sample_type`, `sample_control_id`, `sample_code`, `sample_label`, `sample_category`)" \
+                                      " SELECT `id`, `initial_specimen_sample_id`, `collection_id`, 1, (SELECT `id` FROM participants ORDER BY `id` DESC LIMIT 1), (SELECT `acquisition_label` FROM collections ORDER BY `id` DESC LIMIT 1), `initial_specimen_sample_type`, `sample_control_id`, NULL, NULL, 'saliva', 126, `id`, `sample_label`, 'specimen' FROM sample_masters ORDER BY `id` DESC LIMIT 1;"
                 list_of_statements.append(view_samples_insert)
 
                 sd_spe_salivas_insert = "INSERT INTO sd_spe_salivas (`sample_master_id`) VALUES ((SELECT id FROM sample_masters ORDER BY id DESC LIMIT 1));"
@@ -516,8 +516,8 @@ with open('./data/source_vba.csv', 'rU') as csvfile:
                 specimen_details_insert = "INSERT INTO specimen_details (`sample_master_id`) VALUES ((SELECT `id` FROM sample_masters ORDER BY id DESC LIMIT 1));"
                 list_of_statements.append(specimen_details_insert)
 
-                view_samples_insert = "INSERT INTO view_samples (`sample_master_id`, `initial_specimen_sample_id`, `collection_id`, `bank_id`, `participant_id`, `acquisition_label`, `initial_specimen_sample_type`, `initial_specimen_sample_control_id`, `parent_sample_type`, `parent_sample_control_id`, `sample_type`, `sample_control_id`, `sample_code`, `sample_category`)" \
-                                      " SELECT `id`, `initial_specimen_sample_id`, `collection_id`, 1, (SELECT `id` FROM participants ORDER BY `id` DESC LIMIT 1), (SELECT `acquisition_label` FROM collections ORDER BY `id` DESC LIMIT 1), `initial_specimen_sample_type`, `sample_control_id`, NULL, NULL,'blood', 2, `id`, 'specimen' FROM sample_masters ORDER BY `id` DESC LIMIT 1;"
+                view_samples_insert = "INSERT INTO view_samples (`sample_master_id`, `initial_specimen_sample_id`, `collection_id`, `bank_id`, `participant_id`, `acquisition_label`, `initial_specimen_sample_type`, `initial_specimen_sample_control_id`, `parent_sample_type`, `parent_sample_control_id`, `sample_type`, `sample_control_id`, `sample_code`, `sample_label`, `sample_category`)" \
+                                      " SELECT `id`, `initial_specimen_sample_id`, `collection_id`, 1, (SELECT `id` FROM participants ORDER BY `id` DESC LIMIT 1), (SELECT `acquisition_label` FROM collections ORDER BY `id` DESC LIMIT 1), `initial_specimen_sample_type`, `sample_control_id`, NULL, NULL,'blood', 2, `id`, `sample_label`, 'specimen' FROM sample_masters ORDER BY `id` DESC LIMIT 1;"
                 list_of_statements.append(view_samples_insert)
 
                 sd_spe_bloods_insert = "INSERT INTO sd_spe_bloods (`sample_master_id`) VALUES ((SELECT id FROM sample_masters ORDER BY id DESC LIMIT 1));"
@@ -547,8 +547,8 @@ with open('./data/source_vba.csv', 'rU') as csvfile:
                     list_of_statements.append(derivative_details_insert)
 
 
-                    view_samples_insert = "INSERT INTO view_samples (`sample_master_id`, `initial_specimen_sample_id`, `collection_id`, `bank_id`, `participant_id`, `acquisition_label`, `initial_specimen_sample_type`, `initial_specimen_sample_control_id`, `parent_sample_type`, `parent_sample_control_id`, `sample_type`, `sample_control_id`, `sample_code`, `sample_category`)" \
-                                          " SELECT `id`, `initial_specimen_sample_id`, `collection_id`, 1, (SELECT `id` FROM participants ORDER BY `id` DESC LIMIT 1), (SELECT `acquisition_label` FROM collections ORDER BY `id` DESC LIMIT 1), `initial_specimen_sample_type`, 2, 'blood', 2, 'plasma', 9, `id`,'derivative' FROM sample_masters ORDER BY `id` DESC LIMIT 1;"
+                    view_samples_insert = "INSERT INTO view_samples (`sample_master_id`, `initial_specimen_sample_id`, `collection_id`, `bank_id`, `participant_id`, `acquisition_label`, `initial_specimen_sample_type`, `initial_specimen_sample_control_id`, `parent_sample_type`, `parent_sample_control_id`, `sample_type`, `sample_control_id`, `sample_code`, `sample_label`, `sample_category`)" \
+                                          " SELECT `id`, `initial_specimen_sample_id`, `collection_id`, 1, (SELECT `id` FROM participants ORDER BY `id` DESC LIMIT 1), (SELECT `acquisition_label` FROM collections ORDER BY `id` DESC LIMIT 1), `initial_specimen_sample_type`, 2, 'blood', 2, 'plasma', 9, `id`, `sample_label`, 'derivative' FROM sample_masters ORDER BY `id` DESC LIMIT 1;"
                     list_of_statements.append(view_samples_insert)
 
                     sd_der_plasmas_insert = "INSERT INTO sd_der_plasmas (`sample_master_id`) VALUES ((SELECT id FROM sample_masters ORDER BY id DESC LIMIT 1));"
@@ -583,8 +583,8 @@ with open('./data/source_vba.csv', 'rU') as csvfile:
                     derivative_details_insert = "INSERT INTO derivative_details (`creation_datetime`, `sample_master_id`) VALUES (NOW(), (SELECT `id` FROM sample_masters ORDER BY id DESC LIMIT 1));"
                     list_of_statements.append(derivative_details_insert)
 
-                    view_samples_insert = "INSERT INTO view_samples (`sample_master_id`, `initial_specimen_sample_id`, `collection_id`, `bank_id`, `participant_id`, `acquisition_label`, `initial_specimen_sample_type`, `initial_specimen_sample_control_id`, `parent_sample_type`, `parent_sample_control_id`, `sample_type`, `sample_control_id`, `sample_code`, `sample_category`)" \
-                                          " SELECT `id`, `initial_specimen_sample_id`, `collection_id`, 1, (SELECT `id` FROM participants ORDER BY `id` DESC LIMIT 1), (SELECT `acquisition_label` FROM collections ORDER BY `id` DESC LIMIT 1), `initial_specimen_sample_type`, `sample_control_id`, 'blood', 2,'buffy coat', 137, `id`, 'derivative' FROM sample_masters ORDER BY `id` DESC LIMIT 1;"
+                    view_samples_insert = "INSERT INTO view_samples (`sample_master_id`, `initial_specimen_sample_id`, `collection_id`, `bank_id`, `participant_id`, `acquisition_label`, `initial_specimen_sample_type`, `initial_specimen_sample_control_id`, `parent_sample_type`, `parent_sample_control_id`, `sample_type`, `sample_control_id`, `sample_code`, `sample_label`, `sample_category`)" \
+                                          " SELECT `id`, `initial_specimen_sample_id`, `collection_id`, 1, (SELECT `id` FROM participants ORDER BY `id` DESC LIMIT 1), (SELECT `acquisition_label` FROM collections ORDER BY `id` DESC LIMIT 1), `initial_specimen_sample_type`, `sample_control_id`, 'blood', 2,'buffy coat', 137, `id`, `sample_label`, 'derivative' FROM sample_masters ORDER BY `id` DESC LIMIT 1;"
                     list_of_statements.append(view_samples_insert)
 
                     sd_der_buffy_coats_insert = "INSERT INTO sd_der_buffy_coats (`sample_master_id`) VALUES ((SELECT id FROM sample_masters ORDER BY id DESC LIMIT 1));"
@@ -624,8 +624,8 @@ with open('./data/source_vba.csv', 'rU') as csvfile:
                     specimen_details_insert = "INSERT INTO specimen_details (`sample_master_id`, `reception_datetime`, `reception_datetime_accuracy`) VALUES ((SELECT `id` FROM sample_masters ORDER BY id DESC LIMIT 1), '" + record['Preparation Date'] + " 00:00:00" + "','c');"
                     list_of_statements.append(specimen_details_insert)
 
-                    view_samples_insert = "INSERT INTO view_samples (`sample_master_id`, `initial_specimen_sample_id`, `collection_id`, `bank_id`, `participant_id`, `acquisition_label`, `initial_specimen_sample_type`, `initial_specimen_sample_control_id`, `parent_sample_type`, `parent_sample_control_id`,`sample_type`, `sample_control_id`, `sample_code`, `sample_category`)" \
-                                        " SELECT `id`, `initial_specimen_sample_id`, `collection_id`, 1, (SELECT `id` FROM participants ORDER BY `id` DESC LIMIT 1), (SELECT `acquisition_label` FROM collections ORDER BY `id` DESC LIMIT 1), `initial_specimen_sample_type`, `sample_control_id`, NULL, NULL,'tissue', 3, `id`, 'specimen' FROM sample_masters ORDER BY `id` DESC LIMIT 1;"
+                    view_samples_insert = "INSERT INTO view_samples (`sample_master_id`, `initial_specimen_sample_id`, `collection_id`, `bank_id`, `participant_id`, `acquisition_label`, `initial_specimen_sample_type`, `initial_specimen_sample_control_id`, `parent_sample_type`, `parent_sample_control_id`,`sample_type`, `sample_control_id`, `sample_code`, `sample_label`, `sample_category`)" \
+                                        " SELECT `id`, `initial_specimen_sample_id`, `collection_id`, 1, (SELECT `id` FROM participants ORDER BY `id` DESC LIMIT 1), (SELECT `acquisition_label` FROM collections ORDER BY `id` DESC LIMIT 1), `initial_specimen_sample_type`, `sample_control_id`, NULL, NULL,'tissue', 3, `id`, `sample_label`, 'specimen' FROM sample_masters ORDER BY `id` DESC LIMIT 1;"
                     list_of_statements.append(view_samples_insert)
 
                     sd_spe_tissues_insert = "INSERT INTO sd_spe_tissues (`sample_master_id`, `tissue_nature`, `pathology_reception_datetime`, `pathology_reception_datetime_accuracy`) VALUES ((SELECT id FROM sample_masters ORDER BY id DESC LIMIT 1), '" + record['Tissue Nature'] + "','" + row['Preparation Date'] + " 00:00:00" + "','c' );"
