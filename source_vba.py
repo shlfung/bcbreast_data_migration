@@ -49,17 +49,78 @@ def convert_or_datetime(or_date, or_time):
 def convert_her2(her2_status):
     # Options are Equivocal, Low, Negative, Positive
 
-    if her2_status in ('equiv', 'equiv.', 'Equivocal'):
+    if her2_status in {'equiv', 'equiv.', 'Equivocal'}:
         return 'Equivocal'
-    elif her2_status in ('low'):
+    elif her2_status in {'low'}:
         return 'Low'
-    elif her2_status in ('-', 'neg'):
+    elif her2_status in {'-', 'neg'}:
         return 'Negative'
-    elif her2_status in ('2+', '+', 'pos', 'med', 'high', 'pos.'):
+    elif her2_status in {'2+', '+', 'pos', 'med', 'high', 'pos.'}:
         return 'Positive'
     else:
         return ''
 
+def map_surgeon_and_oncologist(person):
+
+    if person == '':
+
+        return {'Surgeon': '', 'Oncologist': '', 'Study': ''}
+
+    else:
+        surgeons_ref = {'A Macneill': {'Surgeon': 'Dr. Andrea MacNeill', 'Oncologist': '', 'Study': 'TTR', 'Comments': ''},
+                        'A Mcfadden': {'Surgeon': 'Dr. Andrew McFadden', 'Oncologist': '', 'Study': 'TTR', 'Comments': ''},
+                        'al-mansoor': {'Surgeon': '', 'Oncologist': 'Dr. Margaret Knowling', 'Study': 'TTR', 'Comments': 'Thoracentesis specimens'},
+                        'Beardsley': {'Surgeon': '', 'Oncologist': 'Dr. Hagen Kennecke', 'Study': 'TTR', 'Comments': ''},
+                        'bilogy of breast study': {'Surgeon': '', 'Oncologist': '', 'Study': 'Biology of Breast', 'Comments': ''},
+                        'bryce': {'Surgeon': '', 'Oncologist': '', 'Study': 'TTR', 'Comments': 'Thoracentesis specimens'},
+                        'C Ho': {'Surgeon': '', 'Oncologist': '', 'Study': 'TTR', 'Comments': 'Paracentesis specimen'},
+                        'chai': {'Surgeon': '', 'Oncologist': 'Dr. Karen Gelmon', 'Study': 'Xenograft', 'Comments': ''},
+                        'cheifetz': {'Surgeon': 'Dr. Rona Cheifetz', 'Oncologist': '', 'Study': 'TTR', 'Comments': ''},
+                        'chia': {'Surgeon': '', 'Oncologist': 'Dr. Stephen Chia', 'Study': 'TTR', 'Comments': 'Thora/Paracentesis specimens'},
+                        'Chia': {'Surgeon': '', 'Oncologist': 'Dr. Stephen Chia', 'Study': '', 'Comments': ''},
+                        'chia/gelmon': {'Surgeon': '', 'Oncologist': 'Dr. Karen Gelmon', 'Study': 'TTR', 'Comments': 'Paracentesis'},
+                        'colin marr': {'Surgeon': '', 'Oncologist': 'Dr. Karen Gelmon', 'Study': 'Xenograft', 'Comments': ''},
+                        'davis': {'Surgeon': 'Dr. Noelle Davis', 'Oncologist': '', 'Study': 'TTR', 'Comments': ''},
+                        'Dr Gelmon': {'Surgeon': '', 'Oncologist': 'Dr. Karen Gelmon', 'Study': '', 'Comments': ''},
+                        'Dr H Lim': {'Surgeon': '', 'Oncologist': '', 'Study': 'TTR', 'Comments': 'Paracentesis'},
+                        'G McGregor': {'Surgeon': 'Dr. Gregor McGregor', 'Oncologist': '', 'Study': 'TTR', 'Comments': ''},
+                        'Gelm': {'Surgeon': '', 'Oncologist': 'Dr. Karen Gelmon', 'Study': 'TTR', 'Comments': 'Thoracentesis'},
+                        'gelmon': {'Surgeon': '', 'Oncologist': 'Dr. Karen Gelmon', 'Study': 'TTR', 'Comments': 'Thora/Paracentesis'},
+                        'Gelmon': {'Surgeon': '', 'Oncologist': 'Dr. Karen Gelmon', 'Study': 'TTR', 'Comments': ''},
+                        'H Lim': {'Surgeon': '', 'Oncologist': '', 'Study': 'TTR', 'Comments': 'Thoracentesis'},
+                        'hamilton': {'Surgeon': 'Dr. Trevor Hamilton', 'Oncologist': '', 'Study': 'TTR', 'Comments': ''},
+                        'Hamilton': {'Surgeon': 'Dr. Trevor Hamilton', 'Oncologist': '', 'Study': 'TTR', 'Comments': ''},
+                        'howdle': {'Surgeon': '', 'Oncologist': 'Dr. Caroline Lohrisch', 'Study': 'TTR', 'Comments': 'Paracentesis'},
+                        'kennecke': {'Surgeon': '', 'Oncologist': 'Dr. Hagen Kennecke', 'Study': 'TTR', 'Comments': ''},
+                        'Kennecke': {'Surgeon': '', 'Oncologist': 'Dr. Hagen Kennecke', 'Study': 'TTR', 'Comments': ''},
+                        'Knowling': {'Surgeon': '', 'Oncologist': '', 'Study': 'TTR', 'Comments': ''},
+                        'Lam': {'Surgeon': '', 'Oncologist': '', 'Study': 'TTR', 'Comments': ''},
+                        'Lim': {'Surgeon': '', 'Oncologist': '', 'Study': 'TTR', 'Comments': ''},
+                        'lohrisch': {'Surgeon': '', 'Oncologist': 'Dr. Caroline Lohrisch', 'Study': 'TTR', 'Comments': ''},
+                        'Lohrisch': {'Surgeon': '', 'Oncologist': 'Dr. Caroline Lohrisch', 'Study': 'TTR', 'Comments': ''},
+                        'lymburner': {'Surgeon': '', 'Oncologist': '', 'Study': 'TTR', 'Comments': ''},
+                        'm knowling': {'Surgeon': '', 'Oncologist': '', 'Study': 'TTR', 'Comments': ''},
+                        'MacNeil': {'Surgeon': 'Dr. Andrea MacNeill', 'Oncologist': '', 'Study': 'TTR', 'Comments': ''},
+                        'Mc Fadden': {'Surgeon': 'Dr. Andrew McFadden', 'Oncologist': '', 'Study': 'TTR', 'Comments': ''},
+                        'McConnell': {'Surgeon': 'Dr. Andrew McFadden', 'Oncologist': '', 'Study': 'TTR', 'Comments': ''},
+                        'McFadden': {'Surgeon': 'Dr. Andrew McFadden', 'Oncologist': '', 'Study': 'TTR', 'Comments': ''},
+                        'mcfadden': {'Surgeon': 'Dr. Andrew McFadden', 'Oncologist': '', 'Study': 'TTR', 'Comments': ''},
+                        'N Davis': {'Surgeon': 'Dr. Noelle Davis', 'Oncologist': '', 'Study': 'TTR', 'Comments': ''},
+                        'R Cheifetz': {'Surgeon': 'Dr. Rona Cheifetz', 'Oncologist': '', 'Study': 'TTR', 'Comments': ''},
+                        'S Wilson': {'Surgeon': '', 'Oncologist': '', 'Study': 'TTR', 'Comments': ''},
+                        'shenkier': {'Surgeon': '', 'Oncologist': 'Dr. Tamara Shenkier', 'Study': 'TTR', 'Comments': ''},
+                        'Shenkier': {'Surgeon': '', 'Oncologist': 'Dr. Tamara Shenkier', 'Study': 'TTR', 'Comments': ''},
+                        'Simard': {'Surgeon': 'Dr. Laurie Simard', 'Oncologist': '', 'Study': 'TTR', 'Comments': ''},
+                        'Simmons': {'Surgeon': '', 'Oncologist': 'Dr. Christine Simmons', 'Study': 'TTR', 'Comments': ''},
+                        'Sun/Bryce': {'Surgeon': '', 'Oncologist': 'Dr. Sophie Sun', 'Study': '', 'Comments': ''},
+                        'TNBC study': {'Surgeon': '', 'Oncologist': '', 'Study': 'TNBC', 'Comments': ''},
+                        'U Kuusk': {'Surgeon': 'Dr. Urva Kuusk', 'Oncologist': '', 'Study': 'TTR', 'Comments': ''},
+                        'Villa': {'Surgeon': '', 'Oncologist': 'Dr. Diego Villa', 'Study': 'TTR', 'Comments': ''},
+                        'Wilson': {'Surgeon': '', 'Oncologist': '', 'Study': 'TTR', 'Comments': ''},
+                        'Xenograft': {'Surgeon': '', 'Oncologist': '', 'Study': 'Xenograft', 'Comments': ''},
+                        'xenograft': {'Surgeon': '', 'Oncologist': '', 'Study': 'Xenograft', 'Comments': ''}}
+
+        return surgeons_ref[person]
 
 
 # Store the records that have issues in this set:
@@ -156,7 +217,7 @@ with open('./data/ttr_nurse_log_20171023.csv', 'rU') as csvfile:
             participant_data['Primary Path Number'] = row['primaryPathNumber']
             participant_data['Primary Hospital'] = row['PrimaryHospital']
 
-            participant_data['Study Type'] = row['Surgeon']
+            participant_data['Study Type'] = map_surgeon_and_oncologist(row['Surgeon'])['Study']
 
 
             #participant_data[] = row['CurrentDiagnosis']
@@ -255,6 +316,10 @@ with open('./data/ttr_nurse_log_20171023.csv', 'rU') as csvfile:
             consent_data['Pathologist'] = row['Pathologist']
             #consent_data['Person Obtaining Consent'] = row['TTR Nurse']
             consent_data['Person Obtaining Consent'] = 'clinical nurse'
+
+            consent_data['Study Type'] = map_surgeon_and_oncologist(row['Surgeon'])['Study']
+            consent_data['Surgeon'] = map_surgeon_and_oncologist(row['Surgeon'])['Surgeon']
+            consent_data['Study Type'] = map_surgeon_and_oncologist(row['Surgeon'])['Study']
 
             #consent_data['Date Consent Denied'] = row['DateConsentDenied']
 
