@@ -62,7 +62,7 @@ def convert_her2(her2_status):
 
 def map_surgeon_and_oncologist(person):
 
-    if person == '':
+    if person == '' or person == '.':
 
         return {'Surgeon': '', 'Oncologist': '', 'Study': ''}
 
@@ -73,6 +73,7 @@ def map_surgeon_and_oncologist(person):
                         'Beardsley': {'Surgeon': '', 'Oncologist': 'Dr. Hagen Kennecke', 'Study': 'TTR', 'Comments': ''},
                         'bilogy of breast study': {'Surgeon': '', 'Oncologist': '', 'Study': 'Biology of Breast', 'Comments': ''},
                         'bryce': {'Surgeon': '', 'Oncologist': '', 'Study': 'TTR', 'Comments': 'Thoracentesis specimens'},
+                        'C. Ho': {'Surgeon': '', 'Oncologist': '', 'Study': 'TTR', 'Comments': 'Paracentesis specimen'},
                         'C Ho': {'Surgeon': '', 'Oncologist': '', 'Study': 'TTR', 'Comments': 'Paracentesis specimen'},
                         'chai': {'Surgeon': '', 'Oncologist': 'Dr. Karen Gelmon', 'Study': 'Xenograft', 'Comments': ''},
                         'cheifetz': {'Surgeon': 'Dr. Rona Cheifetz', 'Oncologist': '', 'Study': 'TTR', 'Comments': ''},
@@ -80,14 +81,17 @@ def map_surgeon_and_oncologist(person):
                         'Chia': {'Surgeon': '', 'Oncologist': 'Dr. Stephen Chia', 'Study': '', 'Comments': ''},
                         'chia/gelmon': {'Surgeon': '', 'Oncologist': 'Dr. Karen Gelmon', 'Study': 'TTR', 'Comments': 'Paracentesis'},
                         'colin marr': {'Surgeon': '', 'Oncologist': 'Dr. Karen Gelmon', 'Study': 'Xenograft', 'Comments': ''},
+                        'colin  marr': {'Surgeon': '', 'Oncologist': 'Dr. Karen Gelmon', 'Study': 'Xenograft', 'Comments': ''},
                         'davis': {'Surgeon': 'Dr. Noelle Davis', 'Oncologist': '', 'Study': 'TTR', 'Comments': ''},
                         'Dr Gelmon': {'Surgeon': '', 'Oncologist': 'Dr. Karen Gelmon', 'Study': '', 'Comments': ''},
+                        'Dr. H. Lim': {'Surgeon': '', 'Oncologist': '', 'Study': 'TTR', 'Comments': 'Paracentesis'},
                         'Dr H Lim': {'Surgeon': '', 'Oncologist': '', 'Study': 'TTR', 'Comments': 'Paracentesis'},
                         'G McGregor': {'Surgeon': 'Dr. Gregor McGregor', 'Oncologist': '', 'Study': 'TTR', 'Comments': ''},
                         'Gelm': {'Surgeon': '', 'Oncologist': 'Dr. Karen Gelmon', 'Study': 'TTR', 'Comments': 'Thoracentesis'},
                         'gelmon': {'Surgeon': '', 'Oncologist': 'Dr. Karen Gelmon', 'Study': 'TTR', 'Comments': 'Thora/Paracentesis'},
                         'Gelmon': {'Surgeon': '', 'Oncologist': 'Dr. Karen Gelmon', 'Study': 'TTR', 'Comments': ''},
                         'H Lim': {'Surgeon': '', 'Oncologist': '', 'Study': 'TTR', 'Comments': 'Thoracentesis'},
+                        'H. Lim': {'Surgeon': '', 'Oncologist': '', 'Study': 'TTR', 'Comments': 'Thoracentesis'},
                         'hamilton': {'Surgeon': 'Dr. Trevor Hamilton', 'Oncologist': '', 'Study': 'TTR', 'Comments': ''},
                         'Hamilton': {'Surgeon': 'Dr. Trevor Hamilton', 'Oncologist': '', 'Study': 'TTR', 'Comments': ''},
                         'howdle': {'Surgeon': '', 'Oncologist': 'Dr. Caroline Lohrisch', 'Study': 'TTR', 'Comments': 'Paracentesis'},
@@ -99,10 +103,13 @@ def map_surgeon_and_oncologist(person):
                         'lohrisch': {'Surgeon': '', 'Oncologist': 'Dr. Caroline Lohrisch', 'Study': 'TTR', 'Comments': ''},
                         'Lohrisch': {'Surgeon': '', 'Oncologist': 'Dr. Caroline Lohrisch', 'Study': 'TTR', 'Comments': ''},
                         'lymburner': {'Surgeon': '', 'Oncologist': '', 'Study': 'TTR', 'Comments': ''},
+                        'M Knowling': {'Surgeon': '', 'Oncologist': '', 'Study': 'TTR', 'Comments': ''},
                         'm knowling': {'Surgeon': '', 'Oncologist': '', 'Study': 'TTR', 'Comments': ''},
                         'MacNeil': {'Surgeon': 'Dr. Andrea MacNeill', 'Oncologist': '', 'Study': 'TTR', 'Comments': ''},
                         'Mc Fadden': {'Surgeon': 'Dr. Andrew McFadden', 'Oncologist': '', 'Study': 'TTR', 'Comments': ''},
+                        'Mcfadden': {'Surgeon': 'Dr. Andrew McFadden', 'Oncologist': '', 'Study': 'TTR', 'Comments': ''},
                         'McConnell': {'Surgeon': 'Dr. Andrew McFadden', 'Oncologist': '', 'Study': 'TTR', 'Comments': ''},
+                        'Mcconnell': {'Surgeon': 'Dr. Andrew McFadden', 'Oncologist': '', 'Study': 'TTR', 'Comments': ''},
                         'McFadden': {'Surgeon': 'Dr. Andrew McFadden', 'Oncologist': '', 'Study': 'TTR', 'Comments': ''},
                         'mcfadden': {'Surgeon': 'Dr. Andrew McFadden', 'Oncologist': '', 'Study': 'TTR', 'Comments': ''},
                         'N Davis': {'Surgeon': 'Dr. Noelle Davis', 'Oncologist': '', 'Study': 'TTR', 'Comments': ''},
@@ -317,7 +324,7 @@ with open('./data/ttr_nurse_log_20171023.csv', 'rU') as csvfile:
             #consent_data['Person Obtaining Consent'] = row['TTR Nurse']
             consent_data['Person Obtaining Consent'] = 'clinical nurse'
 
-            consent_data['Study Type'] = map_surgeon_and_oncologist(row['Surgeon'])['Study']
+            #consent_data['Study Type'] = map_surgeon_and_oncologist(row['Surgeon'])['Study']
             consent_data['Surgeon'] = map_surgeon_and_oncologist(row['Surgeon'])['Surgeon']
             consent_data['Study Type'] = map_surgeon_and_oncologist(row['Surgeon'])['Study']
 
@@ -512,9 +519,9 @@ with open('./data/source_vba.csv', 'rU') as csvfile:
             #cd_bcca_breast_insert = "INSERT INTO cd_bcca_breast (`consent_id`, `bcb_study_type`, `consent_master_id`, `dt_created`) VALUES ('" + consent_id + "', 'ttr', (SELECT `id` FROM consent_masters ORDER BY `id` DESC LIMIT 1), '2010-01-01 00:00:00');"
 
             cd_bcca_breast_insert = "INSERT INTO cd_bcca_breast (`consent_id`, `bcb_study_type`," \
-                                    "`bcb_path_spec`, `bcb_pathologist`, `bcb_cancer_type`, `bcb_consenting_person`, `genetic_research_status`, `blood_status`, `saliva_status`, `fluid_status`, `fluid_type`, " \
-                                    "`consent_master_id`, `dt_created`) VALUES ('" + consent_id + "', 'ttr', '" + \
-                                    ttr_consent[row['Sample Name']]['Path SPEC'] + "','" + ttr_consent[row['Sample Name']]['Pathologist'] + "','" + ttr_consent[row['Sample Name']]['Cancer Type'] + "','" + ttr_consent[row['Sample Name']]['Person Obtaining Consent'] + "','" + ttr_consent[row['Sample Name']]['Genetic Research Status'] + "','" + ttr_consent[row['Sample Name']]['Blood Collected'] + "','" + ttr_consent[row['Sample Name']]['Saliva Collected'] + "','" + ttr_consent[row['Sample Name']]['Fluid Collected'] + "','" + ttr_consent[row['Sample Name']]['Fluid Type'] + "', (SELECT `id` FROM consent_masters ORDER BY `id` DESC LIMIT 1), '2010-01-01 00:00:00');"
+                                    "`bcb_path_spec`, `bcb_pathologist`, `bcb_cancer_type`, `bcb_consenting_person`, `genetic_research_status`, `blood_status`, `saliva_status`, `fluid_status`, `fluid_type`, `medical_oncologists_vc`," \
+                                    "`consent_master_id`, `dt_created`) VALUES ('" + consent_id + "','" + ttr_consent[row['Sample Name']]['Study Type'] + "','" + \
+                                    ttr_consent[row['Sample Name']]['Path SPEC'] + "','" + ttr_consent[row['Sample Name']]['Pathologist'] + "','" + ttr_consent[row['Sample Name']]['Cancer Type'] + "','" + ttr_consent[row['Sample Name']]['Person Obtaining Consent'] + "','" + ttr_consent[row['Sample Name']]['Genetic Research Status'] + "','" + ttr_consent[row['Sample Name']]['Blood Collected'] + "','" + ttr_consent[row['Sample Name']]['Saliva Collected'] + "','" + ttr_consent[row['Sample Name']]['Fluid Collected'] + "','" + ttr_consent[row['Sample Name']]['Fluid Type'] + "','" + ttr_consent[row['Sample Name']]['Surgeon'] + "', (SELECT `id` FROM consent_masters ORDER BY `id` DESC LIMIT 1), '2010-01-01 00:00:00');"
 
 
             list_of_statements.append(cd_bcca_breast_insert)
@@ -806,17 +813,15 @@ for row in temp:
         # cd_bcca_breast_insert = "INSERT INTO cd_bcca_breast (`consent_id`, `bcb_study_type`, `consent_master_id`, `dt_created`) VALUES ('" + consent_id + "', 'ttr', (SELECT `id` FROM consent_masters ORDER BY `id` DESC LIMIT 1), '2010-01-01 00:00:00');"
 
         cd_bcca_breast_insert = "INSERT INTO cd_bcca_breast (`consent_id`, `bcb_study_type`," \
-                                "`bcb_path_spec`, `bcb_pathologist`, `bcb_cancer_type`, `bcb_consenting_person`, `genetic_research_status`, `blood_status`, `saliva_status`, `fluid_status`, `fluid_type`, " \
-                                "`consent_master_id`, `dt_created`) VALUES ('" + consent_id + "', 'ttr', '" + \
-                                ttr_consent[vba_num]['Path SPEC'] + "','" + ttr_consent[vba_num][
-                                    'Pathologist'] + "','" + ttr_consent[vba_num]['Cancer Type'] + "','" + \
+                                "`bcb_path_spec`, `bcb_pathologist`, `bcb_cancer_type`, `bcb_consenting_person`, `genetic_research_status`, `blood_status`, `saliva_status`, `fluid_status`, `fluid_type`, `medical_oncologists_vc`, " \
+                                "`consent_master_id`, `dt_created`) VALUES ('" + consent_id + "','" + ttr_consent[vba_num]['Study Type'] + "','" + \
+                                ttr_consent[vba_num]['Path SPEC'] + "','" + ttr_consent[vba_num]['Pathologist'] + "','" + ttr_consent[vba_num]['Cancer Type'] + "','" + \
                                 ttr_consent[vba_num]['Person Obtaining Consent'] + "','" + \
                                 ttr_consent[vba_num]['Genetic Research Status'] + "','" + \
                                 ttr_consent[vba_num]['Blood Collected'] + "','" + \
                                 ttr_consent[vba_num]['Saliva Collected'] + "','" + \
                                 ttr_consent[vba_num]['Fluid Collected'] + "','" + \
-                                ttr_consent[vba_num][
-                                    'Fluid Type'] + "', (SELECT `id` FROM consent_masters ORDER BY `id` DESC LIMIT 1), '2010-01-01 00:00:00');"
+                                ttr_consent[vba_num]['Fluid Type'] + "','" + ttr_consent[vba_num]['Surgeon'] + "', (SELECT `id` FROM consent_masters ORDER BY `id` DESC LIMIT 1), '2010-01-01 00:00:00');"
 
         list_of_statements_for_participants_no_samples.append(cd_bcca_breast_insert)
 
