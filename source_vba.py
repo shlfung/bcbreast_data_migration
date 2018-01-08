@@ -37,7 +37,8 @@ def convert_date_format(input_datetime, dob=False):
 def convert_or_datetime(or_date, or_time):
 
     if or_date == '':
-        iso_datetime = ''
+        #iso_datetime = ''
+        iso_datetime = 'NULL'
     elif or_time == '':
         iso_datetime = datetime.datetime.strptime(or_date, '%d-%b-%y').date().isoformat() + ' 00:00:00'
     else:
@@ -496,27 +497,23 @@ with open('./data/source_vba.csv', 'rU') as csvfile:
                                  "`notes`,`final_diagnosis`,`primary_diagnosis`,`primary_path_number`,`primary_hospital`,`or_hospital`," \
                                  "`original_er`,`original_pr`,`her2_fish`, `her2_ihc`,`no_sample_reason`," \
                                  "`or_datetime`,`participant_identifier`," \
-                                 "`last_modification`,`created`,`modified`) VALUES " + " ('TTR', '" + ttr_participants[row['Sample Name']]['First Name'] + "','" + ttr_participants[row['Sample Name']]['Middle Name'] + "','" + ttr_participants[row['Sample Name']]['Last Name'] + "','" + ttr_participants[row['Sample Name']]['Nick Name'] + "','" + ttr_participants[row['Sample Name']]['PHN'] + "','" + ttr_participants[row['Sample Name']]['DOB'] + "', 'c','" + ttr_participants[row['Sample Name']]['Gender'] + "','" + ttr_participants[row['Sample Name']]['Notes'] + "','" + ttr_participants[row['Sample Name']]['Final Diagnosis'] + "','" + ttr_participants[row['Sample Name']]['Primary Diagnosis'] \
+                                 "`last_modification`,`created`, `created_by`, `modified`, `modified_by`) VALUES " + " ('TTR', '" + ttr_participants[row['Sample Name']]['First Name'] + "','" + ttr_participants[row['Sample Name']]['Middle Name'] + "','" + ttr_participants[row['Sample Name']]['Last Name'] + "','" + ttr_participants[row['Sample Name']]['Nick Name'] + "','" + ttr_participants[row['Sample Name']]['PHN'] + "','" + ttr_participants[row['Sample Name']]['DOB'] + "', 'c','" + ttr_participants[row['Sample Name']]['Gender'] + "','" + ttr_participants[row['Sample Name']]['Notes'] + "','" + ttr_participants[row['Sample Name']]['Final Diagnosis'] + "','" + ttr_participants[row['Sample Name']]['Primary Diagnosis'] \
             + "','" + ttr_participants[row['Sample Name']]['Primary Path Number'] + "','" + ttr_participants[row['Sample Name']]['Primary Hospital'] + "','" + ttr_participants[row['Sample Name']]['OR Hospital'] \
             + "','" + ttr_participants[row['Sample Name']]['Original ER'] + "','" + ttr_participants[row['Sample Name']]['Original PR'] \
             + "','" + ttr_participants[row['Sample Name']]['HER2 FISH'] + "','" + ttr_participants[row['Sample Name']]['HER2 IHC'] + "','" + ttr_participants[row['Sample Name']]['No Sample Reason'] \
-            + "','" + ttr_participants[row['Sample Name']]['OR Date and Time'] + "','" + ttr_participants[row['Sample Name']]['BCCA ID'] + "', NOW(), NOW(), NOW());"
+            + "','" + ttr_participants[row['Sample Name']]['OR Date and Time'] + "','" + ttr_participants[row['Sample Name']]['BCCA ID'] + "', NOW(), NOW(), 4, NOW(), 4);"
             list_of_statements.append(participant_insert)
 
             vba_num = row['Sample Name'][0:3] + "000" + row['Sample Name'][3:]
             consent_id = "PBC000" + row['Sample Name'][3:]
             acquisition_label = "000" + row['Sample Name'][3:]
             #print(vba_num)
-            misc_identifier_insert = "INSERT INTO misc_identifiers (`identifier_value`, `misc_identifier_control_id`, `participant_id`, `flag_unique`) VALUES ('" + vba_num + "', 1, (SELECT `id` FROM participants ORDER BY `id` DESC LIMIT 1), 1);"
+            misc_identifier_insert = "INSERT INTO misc_identifiers (`identifier_value`, `misc_identifier_control_id`, `participant_id`, `flag_unique`, `created`, `created_by`, `modified`, `modified_by`) VALUES ('" + vba_num + "', 1, (SELECT `id` FROM participants ORDER BY `id` DESC LIMIT 1), 1, NOW(), 4, NOW(), 4);"
             list_of_statements.append(misc_identifier_insert)
 
-            #consent_masters_insert = "INSERT INTO consent_masters (`consent_status`, `participant_id`, `consent_control_id`) VALUES ('obtained', (SELECT `id` FROM participants ORDER BY `id` DESC LIMIT 1), 2);"
-
-            consent_masters_insert = "INSERT INTO consent_masters (`consent_status`, `consent_signed_date`, `reason_denied`, `notes`, `participant_id`, `consent_control_id`) VALUES ('" + ttr_consent[row['Sample Name']]['Consent Status'] + "','" + ttr_consent[row['Sample Name']]['Date Consent Signed or Declined'] + "','" + ttr_consent[row['Sample Name']]['Reason Consent Declined'] + "','" + ttr_consent[row['Sample Name']]['Notes'] + "',(SELECT `id` FROM participants ORDER BY `id` DESC LIMIT 1), 2);"
+            consent_masters_insert = "INSERT INTO consent_masters (`consent_status`, `consent_signed_date`, `reason_denied`, `notes`, `participant_id`, `consent_control_id`, `created`, `created_by`, `modified`, `modified_by`) VALUES ('" + ttr_consent[row['Sample Name']]['Consent Status'] + "','" + ttr_consent[row['Sample Name']]['Date Consent Signed or Declined'] + "','" + ttr_consent[row['Sample Name']]['Reason Consent Declined'] + "','" + ttr_consent[row['Sample Name']]['Notes'] + "',(SELECT `id` FROM participants ORDER BY `id` DESC LIMIT 1), 2, NOW(), 4, NOW(), 4);"
 
             list_of_statements.append(consent_masters_insert)
-
-            #cd_bcca_breast_insert = "INSERT INTO cd_bcca_breast (`consent_id`, `bcb_study_type`, `consent_master_id`, `dt_created`) VALUES ('" + consent_id + "', 'ttr', (SELECT `id` FROM consent_masters ORDER BY `id` DESC LIMIT 1), '2010-01-01 00:00:00');"
 
             cd_bcca_breast_insert = "INSERT INTO cd_bcca_breast (`consent_id`, `bcb_study_type`," \
                                     "`bcb_path_spec`, `bcb_pathologist`, `bcb_cancer_type`, `bcb_consenting_person`, `genetic_research_status`, `blood_status`, `saliva_status`, `fluid_status`, `fluid_type`, `medical_oncologists_vc`," \
@@ -526,7 +523,7 @@ with open('./data/source_vba.csv', 'rU') as csvfile:
 
             list_of_statements.append(cd_bcca_breast_insert)
 
-            collections_insert = "INSERT INTO collections (`acquisition_label`, `bank_id`, `collection_property`, `collection_notes`, `participant_id`, `consent_master_id`) VALUES ('" + acquisition_label + "', 1, 'participant collection', '', (SELECT `id` FROM participants ORDER BY `id` DESC LIMIT 1), (SELECT `id` FROM consent_masters ORDER BY `id` DESC LIMIT 1));"
+            collections_insert = "INSERT INTO collections (`acquisition_label`, `bank_id`, `collection_property`, `collection_notes`, `participant_id`, `consent_master_id`, `created`, `created_by`, `modified`, `modified_by`) VALUES ('" + acquisition_label + "', 1, 'participant collection', '', (SELECT `id` FROM participants ORDER BY `id` DESC LIMIT 1), (SELECT `id` FROM consent_masters ORDER BY `id` DESC LIMIT 1), NOW(), 4, NOW(), 4);"
             list_of_statements.append(collections_insert)
 
             view_collections_insert = "INSERT INTO view_collections (`collection_id`, `bank_id`, `participant_id`, `consent_master_id`, `acquisition_label`, `collection_property`, `collection_notes`, `created`) SELECT `id`, `bank_id`, `participant_id`, `consent_master_id`, `acquisition_label`, `collection_property`, `collection_notes`, `created` FROM collections ORDER BY `id` DESC LIMIT 1;"
@@ -535,8 +532,8 @@ with open('./data/source_vba.csv', 'rU') as csvfile:
 
             if row['Sample Name'] in vba_saliva:
 
-                sample_masters_insert = "INSERT INTO sample_masters (`sample_label`, `sample_control_id`, `initial_specimen_sample_type`, `collection_id`) VALUES ('" + \
-                                        row['Sample Name'] + "',126, 'saliva', (SELECT `id` FROM collections ORDER BY `id` DESC LIMIT 1));"
+                sample_masters_insert = "INSERT INTO sample_masters (`sample_label`, `sample_control_id`, `initial_specimen_sample_type`, `collection_id`, `created`, `created_by`, `modified`, `modified_by`) VALUES ('" + \
+                                        row['Sample Name'] + "',126, 'saliva', (SELECT `id` FROM collections ORDER BY `id` DESC LIMIT 1), NOW(), 4, NOW(), 4);"
                 list_of_statements.append(sample_masters_insert)
 
                 sample_masters_update = "UPDATE sample_masters SET `sample_code` = `id`, `initial_specimen_sample_id` = `id` WHERE sample_masters.sample_code = '' AND sample_masters.initial_specimen_sample_id IS NULL ORDER BY `id` DESC LIMIT 1;"
@@ -558,9 +555,9 @@ with open('./data/source_vba.csv', 'rU') as csvfile:
                     #print(record['Preparation Date'])
                     # input("Stop")
                     aliquot_barcode = acquisition_label + 'SL' + '000' + str(aliquot_counter)
-                    aliquot_masters_insert = "INSERT INTO aliquot_masters (`barcode`, `filemaker_barcode`, `aliquot_control_id`, `collection_id`, `sample_master_id`, `in_stock`, `storage_datetime`, `storage_datetime_accuracy`) VALUES ('" + aliquot_barcode + "', '" + \
+                    aliquot_masters_insert = "INSERT INTO aliquot_masters (`barcode`, `filemaker_barcode`, `aliquot_control_id`, `collection_id`, `sample_master_id`, `in_stock`, `storage_datetime`, `storage_datetime_accuracy`, `created`, `created_by`, `modified`, `modified_by`) VALUES ('" + aliquot_barcode + "', '" + \
                                              record['Barcode'] + "',16, (SELECT `id` FROM collections ORDER BY `id` DESC LIMIT 1), (SELECT `id` FROM sample_masters WHERE sample_control_id = 126 ORDER BY `id` DESC LIMIT 1), 'yes - available', '" + \
-                                             record['Preparation Date'] + " 00:00:00" + "', 'c');"
+                                             record['Preparation Date'] + " 00:00:00" + "', 'c', NOW(), 4, NOW(), 4);"
                     list_of_statements.append(aliquot_masters_insert)
                     ad_tubes_insert = "INSERT INTO ad_tubes (`aliquot_master_id`) SELECT `id` FROM aliquot_masters ORDER BY `id` DESC LIMIT 1;"
                     list_of_statements.append(ad_tubes_insert)
@@ -577,8 +574,8 @@ with open('./data/source_vba.csv', 'rU') as csvfile:
             if row['Sample Name'] in vba_plasma or row['Sample Name'] in vba_buffy_coat:
 
 
-                sample_masters_insert = "INSERT INTO sample_masters (`sample_label`, `sample_control_id`, `initial_specimen_sample_type`, `collection_id`) VALUES ('" + \
-                                        row['Sample Name'] + "',2, 'blood', (SELECT `id` FROM collections ORDER BY `id` DESC LIMIT 1));"
+                sample_masters_insert = "INSERT INTO sample_masters (`sample_label`, `sample_control_id`, `initial_specimen_sample_type`, `collection_id`, `created`, `created_by`, `modified`, `modified_by`) VALUES ('" + \
+                                        row['Sample Name'] + "',2, 'blood', (SELECT `id` FROM collections ORDER BY `id` DESC LIMIT 1), NOW(), 4, NOW(), 4);"
                 list_of_statements.append(sample_masters_insert)
 
                 sample_masters_update = "UPDATE sample_masters SET `sample_code` = `id`, `initial_specimen_sample_id` = `id` WHERE sample_masters.sample_code = '' AND sample_masters.initial_specimen_sample_id IS NULL ORDER BY `id` DESC LIMIT 1;"
@@ -607,8 +604,8 @@ with open('./data/source_vba.csv', 'rU') as csvfile:
 
 
 
-                    sample_masters_insert = "INSERT INTO sample_masters (`sample_label`, `sample_control_id`, `initial_specimen_sample_id`, `initial_specimen_sample_type`, `collection_id`, `parent_id`, `parent_sample_type`) VALUES ('" + \
-                                            row['Sample Name'] + "',9, (SELECT sample_master_id FROM view_samples WHERE `sample_type` = 'blood' ORDER BY sample_master_id DESC LIMIT 1) ,'blood', (SELECT `id` FROM collections ORDER BY `id` DESC LIMIT 1), (SELECT sample_master_id FROM view_samples WHERE `sample_type` = 'blood' ORDER BY sample_master_id DESC LIMIT 1),'blood');"
+                    sample_masters_insert = "INSERT INTO sample_masters (`sample_label`, `sample_control_id`, `initial_specimen_sample_id`, `initial_specimen_sample_type`, `collection_id`, `parent_id`, `parent_sample_type`, `created`, `created_by`, `modified`, `modified_by`) VALUES ('" + \
+                                            row['Sample Name'] + "',9, (SELECT sample_master_id FROM view_samples WHERE `sample_type` = 'blood' ORDER BY sample_master_id DESC LIMIT 1) ,'blood', (SELECT `id` FROM collections ORDER BY `id` DESC LIMIT 1), (SELECT sample_master_id FROM view_samples WHERE `sample_type` = 'blood' ORDER BY sample_master_id DESC LIMIT 1),'blood', NOW(), 4, NOW(), 4);"
                     list_of_statements.append(sample_masters_insert)
 
                     sample_masters_update = "UPDATE sample_masters SET `sample_code` = `id`;"
@@ -631,8 +628,8 @@ with open('./data/source_vba.csv', 'rU') as csvfile:
                         #print(record['Preparation Date'])
                         #input("Stop")
                         aliquot_barcode = acquisition_label + 'PL' + '000' + str(aliquot_counter)
-                        aliquot_masters_insert = "INSERT INTO aliquot_masters (`barcode`, `filemaker_barcode`, `aliquot_control_id`, `collection_id`, `sample_master_id`, `in_stock`, `storage_datetime`, `storage_datetime_accuracy`) VALUES ('" + aliquot_barcode + "', '" + \
-                                             record['Barcode'] + "',16, (SELECT `id` FROM collections ORDER BY `id` DESC LIMIT 1), (SELECT `id` FROM sample_masters WHERE sample_control_id = 9 ORDER BY `id` DESC LIMIT 1), 'yes - available', '" + record['Preparation Date'] + " 00:00:00" + "', 'c');"
+                        aliquot_masters_insert = "INSERT INTO aliquot_masters (`barcode`, `filemaker_barcode`, `aliquot_control_id`, `collection_id`, `sample_master_id`, `in_stock`, `storage_datetime`, `storage_datetime_accuracy`, `created`, `created_by`, `modified`, `modified_by`) VALUES ('" + aliquot_barcode + "', '" + \
+                                             record['Barcode'] + "',16, (SELECT `id` FROM collections ORDER BY `id` DESC LIMIT 1), (SELECT `id` FROM sample_masters WHERE sample_control_id = 9 ORDER BY `id` DESC LIMIT 1), 'yes - available', '" + record['Preparation Date'] + " 00:00:00" + "', 'c', NOW(), 4, NOW(), 4);"
                         list_of_statements.append(aliquot_masters_insert)
                         ad_tubes_insert = "INSERT INTO ad_tubes (`aliquot_master_id`) SELECT `id` FROM aliquot_masters ORDER BY `id` DESC LIMIT 1;"
                         list_of_statements.append(ad_tubes_insert)
@@ -644,8 +641,8 @@ with open('./data/source_vba.csv', 'rU') as csvfile:
 
                 if row['Sample Name'] in vba_buffy_coat:
 
-                    sample_masters_insert = "INSERT INTO sample_masters (`sample_label`, `sample_control_id`, `initial_specimen_sample_id`, `initial_specimen_sample_type`, `collection_id`, `parent_id`, `parent_sample_type`) VALUES ('" + \
-                                            row['Sample Name'] + "',137, (SELECT sample_master_id FROM view_samples WHERE `sample_type` = 'blood' ORDER BY sample_master_id DESC LIMIT 1) ,'blood', (SELECT `id` FROM collections ORDER BY `id` DESC LIMIT 1), (SELECT sample_master_id FROM view_samples WHERE `sample_type` = 'blood' ORDER BY sample_master_id DESC LIMIT 1),'blood');"
+                    sample_masters_insert = "INSERT INTO sample_masters (`sample_label`, `sample_control_id`, `initial_specimen_sample_id`, `initial_specimen_sample_type`, `collection_id`, `parent_id`, `parent_sample_type`, `created`, `created_by`, `modified`, `modified_by`) VALUES ('" + \
+                                            row['Sample Name'] + "',137, (SELECT sample_master_id FROM view_samples WHERE `sample_type` = 'blood' ORDER BY sample_master_id DESC LIMIT 1) ,'blood', (SELECT `id` FROM collections ORDER BY `id` DESC LIMIT 1), (SELECT sample_master_id FROM view_samples WHERE `sample_type` = 'blood' ORDER BY sample_master_id DESC LIMIT 1),'blood', NOW(), 4, NOW(), 4);"
                     list_of_statements.append(sample_masters_insert)
 
                     sample_masters_update = "UPDATE sample_masters SET `sample_code` = `id`;"
@@ -666,9 +663,9 @@ with open('./data/source_vba.csv', 'rU') as csvfile:
                         #print(record['Preparation Date'])
                         # input("Stop")
                         aliquot_barcode = acquisition_label + 'BC' + '000' + str(aliquot_counter)
-                        aliquot_masters_insert = "INSERT INTO aliquot_masters (`barcode`, `filemaker_barcode`, `aliquot_control_id`, `collection_id`, `sample_master_id`, `in_stock`, `storage_datetime`, `storage_datetime_accuracy`) VALUES ('" + aliquot_barcode + "', '" + \
+                        aliquot_masters_insert = "INSERT INTO aliquot_masters (`barcode`, `filemaker_barcode`, `aliquot_control_id`, `collection_id`, `sample_master_id`, `in_stock`, `storage_datetime`, `storage_datetime_accuracy`, `created`, `created_by`, `modified`, `modified_by`) VALUES ('" + aliquot_barcode + "', '" + \
                                                  record['Barcode'] + "',16, (SELECT `id` FROM collections ORDER BY `id` DESC LIMIT 1), (SELECT `id` FROM sample_masters WHERE sample_control_id = 137 ORDER BY `id` DESC LIMIT 1), 'yes - available', '" + \
-                                                 record['Preparation Date'] + " 00:00:00" + "', 'c');"
+                                                 record['Preparation Date'] + " 00:00:00" + "', 'c', NOW(), 4, NOW(), 4);"
                         list_of_statements.append(aliquot_masters_insert)
                         ad_tubes_insert = "INSERT INTO ad_tubes (`aliquot_master_id`) SELECT `id` FROM aliquot_masters ORDER BY `id` DESC LIMIT 1;"
                         list_of_statements.append(ad_tubes_insert)
@@ -687,7 +684,7 @@ with open('./data/source_vba.csv', 'rU') as csvfile:
 
                     #print(record)
 
-                    sample_masters_insert = "INSERT INTO sample_masters (`sample_label`, `sample_control_id`, `initial_specimen_sample_type`, `collection_id`) VALUES ('" + row['Sample Name'] + "',3, 'tissue', (SELECT `id` FROM collections ORDER BY `id` DESC LIMIT 1));"
+                    sample_masters_insert = "INSERT INTO sample_masters (`sample_label`, `sample_control_id`, `initial_specimen_sample_type`, `collection_id`, `created`, `created_by`, `modified`, `modified_by`) VALUES ('" + row['Sample Name'] + "',3, 'tissue', (SELECT `id` FROM collections ORDER BY `id` DESC LIMIT 1), NOW(), 4, NOW(), 4);"
                     list_of_statements.append(sample_masters_insert)
 
                     sample_masters_update = "UPDATE sample_masters SET `sample_code` = `id`, `initial_specimen_sample_id` = `id` WHERE sample_masters.sample_code = '' AND sample_masters.initial_specimen_sample_id IS NULL ORDER BY `id` DESC LIMIT 1;"
@@ -700,7 +697,7 @@ with open('./data/source_vba.csv', 'rU') as csvfile:
                                         " SELECT `id`, `initial_specimen_sample_id`, `collection_id`, 1, (SELECT `id` FROM participants ORDER BY `id` DESC LIMIT 1), (SELECT `acquisition_label` FROM collections ORDER BY `id` DESC LIMIT 1), `initial_specimen_sample_type`, `sample_control_id`, NULL, NULL,'tissue', 3, `id`, `sample_label`, 'specimen' FROM sample_masters ORDER BY `id` DESC LIMIT 1;"
                     list_of_statements.append(view_samples_insert)
 
-                    sd_spe_tissues_insert = "INSERT INTO sd_spe_tissues (`sample_master_id`, `tissue_nature`, `pathology_reception_datetime`, `pathology_reception_datetime_accuracy`) VALUES ((SELECT id FROM sample_masters ORDER BY id DESC LIMIT 1), '" + record['Tissue Nature'] + "','" + row['Preparation Date'] + " 00:00:00" + "','c' );"
+                    sd_spe_tissues_insert = "INSERT INTO sd_spe_tissues (`sample_master_id`, `tissue_nature`, `pathology_reception_datetime`, `pathology_reception_datetime_accuracy`) VALUES ((SELECT id FROM sample_masters ORDER BY id DESC LIMIT 1), '" + record['Tissue Nature'] + "','" + convert_date_format(row['Preparation Date']) + " 00:00:00" + "','c' );"
                     list_of_statements.append(sd_spe_tissues_insert)
 
             vba_inserted.add(row['Sample Name'])
@@ -770,7 +767,7 @@ for row in temp:
                              "`notes`,`final_diagnosis`,`primary_diagnosis`,`primary_path_number`,`primary_hospital`,`or_hospital`," \
                              "`original_er`,`original_pr`,`her2_fish`, `her2_ihc`,`no_sample_reason`," \
                              "`or_datetime`,`participant_identifier`," \
-                             "`last_modification`,`created`,`modified`) VALUES " + " ('TTR', '" + \
+                             "`last_modification`,`created`, `created_by`, `modified`, `modified_by`) VALUES " + " ('TTR', '" + \
                              ttr_participants[vba_num]['First Name'] + "','" + \
                              ttr_participants[vba_num]['Middle Name'] + "','" + \
                              ttr_participants[vba_num]['Last Name'] + "','" + \
@@ -789,28 +786,25 @@ for row in temp:
                              ttr_participants[vba_num]['HER2 IHC'] + "','" + \
                              ttr_participants[vba_num]['No Sample Reason'] \
                              + "','" + ttr_participants[vba_num]['OR Date and Time'] + "','" + \
-                             ttr_participants[vba_num]['BCCA ID'] + "', NOW(), NOW(), NOW());"
+                             ttr_participants[vba_num]['BCCA ID'] + "', NOW(), NOW(), 4, NOW(), 4);"
         list_of_statements_for_participants_no_samples.append(participant_insert)
 
         vba_num_for_misc_identifier = vba_num[0:3] + "000" + vba_num[3:]
         consent_id = "PBC000" + vba_num[3:]
         acquisition_label = "000" + vba_num[3:]
-        # print(vba_num)
-        misc_identifier_insert = "INSERT INTO misc_identifiers (`identifier_value`, `misc_identifier_control_id`, `participant_id`, `flag_unique`) VALUES ('" + vba_num_for_misc_identifier + "', 1, (SELECT `id` FROM participants ORDER BY `id` DESC LIMIT 1), 1);"
+        misc_identifier_insert = "INSERT INTO misc_identifiers (`identifier_value`, `misc_identifier_control_id`, `participant_id`, `flag_unique`, `created`, `created_by`, `modified`, `modified_by`) VALUES ('" + vba_num_for_misc_identifier + "', 1, (SELECT `id` FROM participants ORDER BY `id` DESC LIMIT 1), 1, NOW(), 4, NOW(), 4);"
         list_of_statements_for_participants_no_samples.append(misc_identifier_insert)
 
-        # consent_masters_insert = "INSERT INTO consent_masters (`consent_status`, `participant_id`, `consent_control_id`) VALUES ('obtained', (SELECT `id` FROM participants ORDER BY `id` DESC LIMIT 1), 2);"
 
-        consent_masters_insert = "INSERT INTO consent_masters (`consent_status`, `consent_signed_date`, `reason_denied`, `notes`, `participant_id`, `consent_control_id`) VALUES ('" + \
+        consent_masters_insert = "INSERT INTO consent_masters (`consent_status`, `consent_signed_date`, `reason_denied`, `notes`, `participant_id`, `consent_control_id`, `created`, `created_by`, `modified`, `modified_by`) VALUES ('" + \
                                  ttr_consent[vba_num]['Consent Status'] + "','" + \
                                  ttr_consent[vba_num]['Date Consent Signed or Declined'] + "','" + \
                                  ttr_consent[vba_num]['Reason Consent Declined'] + "','" + \
                                  ttr_consent[vba_num][
-                                     'Notes'] + "',(SELECT `id` FROM participants ORDER BY `id` DESC LIMIT 1), 2);"
+                                     'Notes'] + "',(SELECT `id` FROM participants ORDER BY `id` DESC LIMIT 1), 2, NOW(), 4, NOW(), 4);"
 
         list_of_statements_for_participants_no_samples.append(consent_masters_insert)
 
-        # cd_bcca_breast_insert = "INSERT INTO cd_bcca_breast (`consent_id`, `bcb_study_type`, `consent_master_id`, `dt_created`) VALUES ('" + consent_id + "', 'ttr', (SELECT `id` FROM consent_masters ORDER BY `id` DESC LIMIT 1), '2010-01-01 00:00:00');"
 
         cd_bcca_breast_insert = "INSERT INTO cd_bcca_breast (`consent_id`, `bcb_study_type`," \
                                 "`bcb_path_spec`, `bcb_pathologist`, `bcb_cancer_type`, `bcb_consenting_person`, `genetic_research_status`, `blood_status`, `saliva_status`, `fluid_status`, `fluid_type`, `medical_oncologists_vc`, " \
