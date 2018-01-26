@@ -4,7 +4,8 @@ import datetime
 def convert_date_format(input_datetime, dob=False):
 
     if input_datetime == '':
-        return input_datetime
+        return '0000-00-00'
+        #return input_datetime
     else:
         #print(input_datetime)
 
@@ -38,7 +39,7 @@ def convert_or_datetime(or_date, or_time):
 
     if or_date == '':
         #iso_datetime = ''
-        iso_datetime = 'NULL'
+        iso_datetime = '0000-00-00'
     elif or_time == '':
         iso_datetime = datetime.datetime.strptime(or_date, '%d-%b-%y').date().isoformat() + ' 00:00:00'
     else:
@@ -327,6 +328,7 @@ with open('./data/ttr_nurse_log_20171023.csv', 'rU') as csvfile:
 
             #consent_data['Study Type'] = map_surgeon_and_oncologist(row['Surgeon'])['Study']
             consent_data['Surgeon'] = map_surgeon_and_oncologist(row['Surgeon'])['Surgeon']
+            consent_data['Medical Oncologist'] = map_surgeon_and_oncologist(row['Surgeon'])['Oncologist']
             consent_data['Study Type'] = map_surgeon_and_oncologist(row['Surgeon'])['Study']
 
             #consent_data['Date Consent Denied'] = row['DateConsentDenied']
@@ -516,9 +518,9 @@ with open('./data/source_vba.csv', 'rU') as csvfile:
             list_of_statements.append(consent_masters_insert)
 
             cd_bcca_breast_insert = "INSERT INTO cd_bcca_breast (`consent_id`, `bcb_study_type`," \
-                                    "`bcb_path_spec`, `bcb_pathologist`, `bcb_cancer_type`, `bcb_consenting_person`, `genetic_research_status`, `blood_status`, `saliva_status`, `fluid_status`, `fluid_type`, `medical_oncologists_vc`," \
+                                    "`bcb_path_spec`, `bcb_pathologist`, `bcb_cancer_type`, `bcb_consenting_person`, `genetic_research_status`, `blood_status`, `saliva_status`, `fluid_status`, `fluid_type`, `surgeon`, `medical_oncologists_vc`," \
                                     "`consent_master_id`, `dt_created`) VALUES ('" + consent_id + "','" + ttr_consent[row['Sample Name']]['Study Type'] + "','" + \
-                                    ttr_consent[row['Sample Name']]['Path SPEC'] + "','" + ttr_consent[row['Sample Name']]['Pathologist'] + "','" + ttr_consent[row['Sample Name']]['Cancer Type'] + "','" + ttr_consent[row['Sample Name']]['Person Obtaining Consent'] + "','" + ttr_consent[row['Sample Name']]['Genetic Research Status'] + "','" + ttr_consent[row['Sample Name']]['Blood Collected'] + "','" + ttr_consent[row['Sample Name']]['Saliva Collected'] + "','" + ttr_consent[row['Sample Name']]['Fluid Collected'] + "','" + ttr_consent[row['Sample Name']]['Fluid Type'] + "','" + ttr_consent[row['Sample Name']]['Surgeon'] + "', (SELECT `id` FROM consent_masters ORDER BY `id` DESC LIMIT 1), '2010-01-01 00:00:00');"
+                                    ttr_consent[row['Sample Name']]['Path SPEC'] + "','" + ttr_consent[row['Sample Name']]['Pathologist'] + "','" + ttr_consent[row['Sample Name']]['Cancer Type'] + "','" + ttr_consent[row['Sample Name']]['Person Obtaining Consent'] + "','" + ttr_consent[row['Sample Name']]['Genetic Research Status'] + "','" + ttr_consent[row['Sample Name']]['Blood Collected'] + "','" + ttr_consent[row['Sample Name']]['Saliva Collected'] + "','" + ttr_consent[row['Sample Name']]['Fluid Collected'] + "','" + ttr_consent[row['Sample Name']]['Fluid Type'] + "','" + ttr_consent[row['Sample Name']]['Surgeon'] + "','" + ttr_consent[row['Sample Name']]['Medical Oncologist'] + "', (SELECT `id` FROM consent_masters ORDER BY `id` DESC LIMIT 1), '2010-01-01 00:00:00');"
 
 
             list_of_statements.append(cd_bcca_breast_insert)
@@ -807,7 +809,7 @@ for row in temp:
 
 
         cd_bcca_breast_insert = "INSERT INTO cd_bcca_breast (`consent_id`, `bcb_study_type`," \
-                                "`bcb_path_spec`, `bcb_pathologist`, `bcb_cancer_type`, `bcb_consenting_person`, `genetic_research_status`, `blood_status`, `saliva_status`, `fluid_status`, `fluid_type`, `medical_oncologists_vc`, " \
+                                "`bcb_path_spec`, `bcb_pathologist`, `bcb_cancer_type`, `bcb_consenting_person`, `genetic_research_status`, `blood_status`, `saliva_status`, `fluid_status`, `fluid_type`, `surgeon`, `medical_oncologists_vc`, " \
                                 "`consent_master_id`, `dt_created`) VALUES ('" + consent_id + "','" + ttr_consent[vba_num]['Study Type'] + "','" + \
                                 ttr_consent[vba_num]['Path SPEC'] + "','" + ttr_consent[vba_num]['Pathologist'] + "','" + ttr_consent[vba_num]['Cancer Type'] + "','" + \
                                 ttr_consent[vba_num]['Person Obtaining Consent'] + "','" + \
@@ -815,7 +817,7 @@ for row in temp:
                                 ttr_consent[vba_num]['Blood Collected'] + "','" + \
                                 ttr_consent[vba_num]['Saliva Collected'] + "','" + \
                                 ttr_consent[vba_num]['Fluid Collected'] + "','" + \
-                                ttr_consent[vba_num]['Fluid Type'] + "','" + ttr_consent[vba_num]['Surgeon'] + "', (SELECT `id` FROM consent_masters ORDER BY `id` DESC LIMIT 1), '2010-01-01 00:00:00');"
+                                ttr_consent[vba_num]['Fluid Type'] + "','" + ttr_consent[vba_num]['Surgeon'] + "','" + ttr_consent[vba_num]['Medical Oncologist'] + "', (SELECT `id` FROM consent_masters ORDER BY `id` DESC LIMIT 1), '2010-01-01 00:00:00');"
 
         list_of_statements_for_participants_no_samples.append(cd_bcca_breast_insert)
 
